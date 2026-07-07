@@ -1,30 +1,29 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { Hint, Rule, useTheme } from '../ui.tsx';
+import { Hint, Rule, Spinner, useTheme } from '../ui.tsx';
 import { useTermSize } from '../hooks.ts';
 import { themes } from '../theme.ts';
+import { models as MODELS, mcpServers, skills, stats } from '../mock/data.ts';
 
-const TABS = ['appearance', 'model', 'behavior', 'keys'] as const;
+const TABS = ['Appearance', 'Model', 'Behavior', 'Stats', 'MCP & Skills', 'Keys'] as const;
 type Tab = (typeof TABS)[number];
 
-import { models as MODELS } from '../mock/data.ts';
-
 const BEHAVIOR = [
-  { k: 'auto-approve edits', v: 'off', desc: 'apply file edits without confirmation' },
-  { k: 'verify after change', v: 'on', desc: 'run project verify skill post-edit' },
-  { k: 'turn timer', v: 'on', desc: 'print "turn completed in Xs"' },
-  { k: 'context warnings', v: '80%', desc: 'warn when context passes threshold' },
-  { k: 'mouse support', v: 'on', desc: 'click to fold traces, scroll transcript' },
-  { k: 'telemetry', v: 'off', desc: 'nothing leaves this machine' },
+  { k: 'Auto-approve edits', v: 'off', desc: 'Apply file edits without confirmation' },
+  { k: 'Verify after change', v: 'on', desc: 'Run the project verify loop after edits' },
+  { k: 'Turn timer', v: 'on', desc: 'Print "Turn completed in …" after each turn' },
+  { k: 'Context warnings', v: '80%', desc: 'Warn when context passes the threshold' },
+  { k: 'Mouse support', v: 'on', desc: 'Click to fold traces, scroll the transcript' },
+  { k: 'Telemetry', v: 'off', desc: 'Nothing leaves this machine' },
 ];
 
 const KEYS = [
-  ['shift+tab', 'cycle mode'],
-  ['ctrl+b', 'sidebar'],
-  ['ctrl+d', 'diff review'],
-  ['ctrl+o', 'fold / unfold'],
-  ['ctrl+l', 'clear'],
-  ['?', 'shortcut overlay'],
+  ['Shift+Tab', 'Cycle mode'],
+  ['Ctrl+B', 'Sidebar'],
+  ['Ctrl+D', 'Diff review'],
+  ['Ctrl+O', 'Fold / unfold'],
+  ['Ctrl+L', 'Clear transcript'],
+  ['?', 'Shortcut overlay'],
 ];
 
 function Toggle({ v }: { v: string }) {
@@ -35,6 +34,147 @@ function Toggle({ v }: { v: string }) {
       <Text color={on ? t.green : t.faint}>{on ? '◉' : '○'}</Text>
       <Text color={on ? t.fg : t.dim}> {v}</Text>
     </Text>
+  );
+}
+
+/** Horizontal bar built from block glyphs. */
+function Bar({ value, width, color }: { value: number; width: number; color: string }) {
+  const t = useTheme();
+  const filled = Math.round(value * width);
+  return (
+    <Text>
+      <Text color={color}>{'▇'.repeat(filled)}</Text>
+      <Text color={t.faint}>{'▁'.repeat(Math.max(0, width - filled))}</Text>
+    </Text>
+  );
+}
+
+const SPARK = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+
+function StatsTab() {
+  const t = useTheme();
+  return (
+    <Box flexDirection="column" rowGap={1}>
+      {/* totals */}
+      <Box columnGap={3}>
+        {(
+          [
+            ['Sessions', String(stats.totals.sessions)],
+            ['Turns', String(stats.totals.turns)],
+            ['Tokens', stats.totals.tokens],
+            ['Est. cost', stats.totals.cost],
+          ] as const
+        ).map(([k, v]) => (
+          <Box key={k} flexDirection="column">
+            <Text color={t.faint}>{k}</Text>
+            <Text color={t.bright} bold>
+              {v}
+            </Text>
+          </Box>
+        ))}
+      </Box>
+
+      {/* model usage */}
+      <Box flexDirection="column">
+        <Text color={t.dim}>Model usage · Last 30 days</Text>
+        {stats.modelUsage.map((m) => (
+          <Box key={m.id}>
+            <Box width={22}>
+              <Text color={t.fg}>{m.id}</Text>
+            </Box>
+            <Bar value={m.share} width={24} color={t.accent} />
+            <Text color={t.dim}>
+              {'  '}
+              {Math.round(m.share * 100)}%
+            </Text>
+            <Text color={t.faint}> · {m.tokens}</Text>
+          </Box>
+        ))}
+      </Box>
+
+      {/* daily sparkline */}
+      <Box flexDirection="column">
+        <Text color={t.dim}>Tokens per day · Last 14 days</Text>
+        <Box>
+          <Text color={t.accent}>
+            {stats.daily.map((v) => SPARK[Math.min(7, Math.round(v * 7))]).join(' ')}
+          </Text>
+          <Text color={t.faint}>{'  '}Peak {stats.dailyPeak}</Text>
+        </Box>
+      </Box>
+
+      {/* tool invocations */}
+      <Box flexDirection="column">
+        <Text color={t.dim}>Tool invocations</Text>
+        {stats.tools.map((tool) => {
+          const max = stats.tools[0]!.count;
+          return (
+            <Box key={tool.name}>
+              <Box width={10}>
+                <Text color={t.fg}>{tool.name}</Text>
+              </Box>
+              <Bar value={tool.count / max} width={20} color={t.accentDim} />
+              <Text color={t.dim}>
+                {'  '}
+                {tool.count}
+              </Text>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+}
+
+function McpSkillsTab({ row }: { row: number }) {
+  const t = useTheme();
+  return (
+    <Box flexDirection="column" rowGap={1}>
+      <Box flexDirection="column">
+        <Text color={t.dim}>MCP servers · /mcp shows this in-chat</Text>
+        {mcpServers.map((s, i) => (
+          <Box key={s.name}>
+            <Text color={i === row ? t.accent : t.faint}>{i === row ? '▌ ' : '  '}</Text>
+            {s.state === 'ok' ? (
+              <Text color={t.green}>● </Text>
+            ) : (
+              <Text color={t.red}>○ </Text>
+            )}
+            <Box width={13}>
+              <Text color={t.fg}>{s.name}</Text>
+            </Box>
+            <Box width={7}>
+              <Text color={t.dim}>{s.lat}</Text>
+            </Box>
+            <Text color={t.faint}>
+              {s.state === 'ok' ? `${s.tools} tools · Healthy` : 'Unreachable · Retrying in 30s'}
+            </Text>
+          </Box>
+        ))}
+      </Box>
+
+      <Box flexDirection="column">
+        <Text color={t.dim}>Agent Skills · Enter toggles (mock)</Text>
+        {skills.map((s, i) => {
+          const ri = i + mcpServers.length;
+          const stateColor =
+            s.state === 'active' ? t.green : s.state === 'idle' ? t.yellow : t.faint;
+          return (
+            <Box key={s.name}>
+              <Text color={ri === row ? t.accent : t.faint}>{ri === row ? '▌ ' : '  '}</Text>
+              <Text color={stateColor}>{s.state === 'active' ? '◉ ' : '○ '}</Text>
+              <Box width={18}>
+                <Text color={t.fg}>{s.name}</Text>
+              </Box>
+              <Box width={10}>
+                <Text color={stateColor}>{s.state[0]!.toUpperCase() + s.state.slice(1)}</Text>
+              </Box>
+              <Text color={t.faint}>{s.desc}</Text>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
   );
 }
 
@@ -49,37 +189,51 @@ export function Settings({
 }) {
   const t = useTheme();
   const { columns, rows } = useTermSize();
-  const [tab, setTab] = useState<Tab>('appearance');
+  const [tab, setTab] = useState<Tab>('Appearance');
   const [row, setRow] = useState(themeIx);
   const [modelIx, setModelIx] = useState(0);
 
   const rowsMax =
-    tab === 'appearance' ? themes.length : tab === 'model' ? MODELS.length : tab === 'behavior' ? BEHAVIOR.length : KEYS.length;
+    tab === 'Appearance'
+      ? themes.length
+      : tab === 'Model'
+        ? MODELS.length
+        : tab === 'Behavior'
+          ? BEHAVIOR.length
+          : tab === 'MCP & Skills'
+            ? mcpServers.length + skills.length
+            : tab === 'Keys'
+              ? KEYS.length
+              : 1;
 
   useInput((ch, key) => {
     if (key.escape || ch === 'q') return onBack();
-    if (key.leftArrow || (key.shift && key.tab))
+    if (key.leftArrow || (key.shift && key.tab)) {
+      setRow(0);
       return setTab((v) => TABS[(TABS.indexOf(v) + TABS.length - 1) % TABS.length]!);
-    if (key.rightArrow || key.tab)
+    }
+    if (key.rightArrow || key.tab) {
+      setRow(0);
       return setTab((v) => TABS[(TABS.indexOf(v) + 1) % TABS.length]!);
+    }
     if (key.upArrow || ch === 'k') return setRow((r) => Math.max(0, r - 1));
     if (key.downArrow || ch === 'j') return setRow((r) => Math.min(rowsMax - 1, r + 1));
     if (key.return) {
-      if (tab === 'appearance') onTheme(row);
-      if (tab === 'model') setModelIx(row);
+      if (tab === 'Appearance') onTheme(row);
+      if (tab === 'Model') setModelIx(row);
     }
   });
 
-  const w = Math.min(columns - 4, 78);
+  const w = Math.min(columns - 4, 82);
 
   return (
     <Box width={columns} height={rows} flexDirection="column" alignItems="center">
       <Box marginTop={1} width={w} flexDirection="column">
         <Box justifyContent="space-between">
           <Text color={t.bright} bold>
-            ⚙ settings
+            ⚙ Settings
           </Text>
-          <Text color={t.faint}>changes apply live · nothing persists (mock)</Text>
+          <Text color={t.faint}>Changes apply live · Nothing persists (mock)</Text>
         </Box>
 
         {/* tabs */}
@@ -99,17 +253,21 @@ export function Settings({
         <Rule width={w} />
 
         <Box marginTop={1} flexDirection="column">
-          {tab === 'appearance' &&
-            themes.map((th, i) => (
-              <Box key={th.id} flexDirection="column" marginBottom={0}>
-                <Box>
+          {tab === 'Appearance' && (
+            <Box flexDirection="column">
+              <Box marginBottom={1}>
+                <Text color={t.faint}>
+                  The default is monochrome — color is reserved for diffs, state, and markers.
+                </Text>
+              </Box>
+              {themes.map((th, i) => (
+                <Box key={th.id}>
                   <Text color={i === row ? t.accent : t.faint}>{i === row ? '▌ ' : '  '}</Text>
                   <Box width={16}>
                     <Text color={i === row ? t.bright : t.fg} bold={i === row}>
                       {th.name}
                     </Text>
                   </Box>
-                  {/* live swatch strip */}
                   <Text>
                     <Text color={th.accent}>████</Text>
                     <Text color={th.fg}>██</Text>
@@ -119,12 +277,13 @@ export function Settings({
                     <Text color={th.yellow}>█</Text>
                     <Text color={th.cyan}>█</Text>
                   </Text>
-                  {i === themeIx && <Text color={t.green}>  ✓ active</Text>}
+                  {i === themeIx && <Text color={t.green}>  ✓ Active</Text>}
                 </Box>
-              </Box>
-            ))}
+              ))}
+            </Box>
+          )}
 
-          {tab === 'model' &&
+          {tab === 'Model' &&
             MODELS.map((m, i) => (
               <Box key={m.id}>
                 <Text color={i === row ? t.accent : t.faint}>{i === row ? '▌ ' : '  '}</Text>
@@ -139,7 +298,7 @@ export function Settings({
               </Box>
             ))}
 
-          {tab === 'behavior' &&
+          {tab === 'Behavior' &&
             BEHAVIOR.map((b, i) => (
               <Box key={b.k}>
                 <Text color={i === row ? t.accent : t.faint}>{i === row ? '▌ ' : '  '}</Text>
@@ -153,7 +312,11 @@ export function Settings({
               </Box>
             ))}
 
-          {tab === 'keys' && (
+          {tab === 'Stats' && <StatsTab />}
+
+          {tab === 'MCP & Skills' && <McpSkillsTab row={row} />}
+
+          {tab === 'Keys' && (
             <Box flexDirection="column">
               {KEYS.map(([k, d], i) => (
                 <Box key={k}>
@@ -165,7 +328,7 @@ export function Settings({
                 </Box>
               ))}
               <Box marginTop={1}>
-                <Text color={t.faint}>rebinding lives in ~/.alcor/keys.json (mock)</Text>
+                <Text color={t.faint}>Rebinding lives in ~/.alcor/keys.json (mock)</Text>
               </Box>
             </Box>
           )}
@@ -176,10 +339,10 @@ export function Settings({
       <Box width={columns - 2} justifyContent="space-between" paddingX={1}>
         <Hint
           pairs={[
-            ['←→', 'tab'],
-            ['↑↓', 'row'],
-            ['enter', 'apply'],
-            ['esc', 'back'],
+            ['←→', 'Tab'],
+            ['↑↓', 'Row'],
+            ['Enter', 'Apply'],
+            ['Esc', 'Back'],
           ]}
         />
         <Text color={t.faint}>ALCOR α</Text>

@@ -388,19 +388,19 @@ export const planMarkdown = [
 ];
 
 export const shortcuts: [string, string][] = [
-  ['enter', 'send message'],
-  ['shift+tab', 'cycle mode — normal / plan / auto'],
-  ['/', 'command palette'],
-  ['ctrl+b', 'toggle sidebar'],
-  ['ctrl+d', 'review diffs'],
-  ['ctrl+o', 'expand / collapse tool output'],
-  ['ctrl+t', 'toggle todos panel'],
-  ['pgup / pgdn', 'scroll transcript'],
-  ['ctrl+l', 'clear transcript'],
-  ['esc', 'close overlay / back'],
-  ['ctrl+s', 'settings'],
-  ['?', 'this overlay (empty input)'],
-  ['ctrl+c', 'quit ALCOR'],
+  ['Enter', 'Send message'],
+  ['Shift+Tab', 'Cycle mode — Normal / Plan / Auto'],
+  ['/', 'Command palette'],
+  ['Ctrl+B', 'Toggle sidebar'],
+  ['Ctrl+D', 'Review diffs'],
+  ['Ctrl+O', 'Expand / collapse tool output'],
+  ['Ctrl+T', 'Toggle todos panel'],
+  ['PgUp / PgDn', 'Scroll transcript'],
+  ['Ctrl+L', 'Clear transcript'],
+  ['Esc', 'Close overlay / back'],
+  ['Ctrl+S', 'Settings'],
+  ['?', 'This overlay (empty input)'],
+  ['Ctrl+C', 'Quit ALCOR'],
 ];
 
 export interface SlashCommand {
@@ -410,17 +410,17 @@ export interface SlashCommand {
 }
 
 export const slashCommands: SlashCommand[] = [
-  { cmd: '/plan', desc: 'draft a plan before touching code', ctx: '~0.2%' },
-  { cmd: '/diff', desc: 'review pending changes', ctx: '~0.0%' },
-  { cmd: '/model', desc: 'switch model for this session', ctx: '~0.0%' },
-  { cmd: '/settings', desc: 'open settings', ctx: '~0.0%' },
-  { cmd: '/sessions', desc: 'back to session picker', ctx: '~0.0%' },
-  { cmd: '/compact', desc: 'compact context, keep decisions', ctx: '−62%' },
-  { cmd: '/imagine', desc: 'generate an image from a prompt', ctx: '~0.01%' },
-  { cmd: '/mcp', desc: 'manage MCP servers', ctx: '~0.1%' },
-  { cmd: '/theme', desc: 'cycle theme', ctx: '~0.0%' },
-  { cmd: '/help', desc: 'shortcuts & docs', ctx: '~0.3%' },
-  { cmd: '/quit', desc: 'exit ALCOR', ctx: '' },
+  { cmd: '/plan', desc: 'Draft a plan before touching code', ctx: '~0.2%' },
+  { cmd: '/diff', desc: 'Review pending changes', ctx: '~0.0%' },
+  { cmd: '/model', desc: 'Switch model for this session', ctx: '~0.0%' },
+  { cmd: '/settings', desc: 'Open settings', ctx: '~0.0%' },
+  { cmd: '/sessions', desc: 'Back to the session picker', ctx: '~0.0%' },
+  { cmd: '/compact', desc: 'Compact context, keep decisions', ctx: '−62%' },
+  { cmd: '/imagine', desc: 'Generate an image from a prompt', ctx: '~0.01%' },
+  { cmd: '/mcp', desc: 'MCP server status', ctx: '~0.1%' },
+  { cmd: '/theme', desc: 'Pick a theme', ctx: '~0.0%' },
+  { cmd: '/help', desc: 'Shortcuts & docs', ctx: '~0.3%' },
+  { cmd: '/quit', desc: 'Exit ALCOR', ctx: '' },
 ];
 
 // ── models (shared by settings + /model picker) ──────────────────────────
@@ -461,9 +461,41 @@ export const mcpServers = [
 ] as const;
 
 export const bootLines = [
-  'link established · alcor-large-2',
-  'workspace mounted ~/dev/nebula-api',
-  'index warm · 1,284 files · 96ms',
-  'mcp: github ✓  playwright ✓  memory ✓',
-  'plugins: reviewer, verifier',
+  'Link established · alcor-large-2',
+  'Workspace mounted · ~/dev/nebula-api',
+  'Index warm · 1,284 files · 96ms',
+  'MCP · github ✓  playwright ✓  memory ✓',
+  'Skills · reviewer, verifier',
 ];
+
+// ── stats (Settings → Stats tab) ─────────────────────────────────────────
+
+export const stats = {
+  totals: { sessions: 12, turns: 184, tokens: '4.6M', cost: '$23.40' },
+  modelUsage: [
+    { id: 'alcor-large-2', share: 0.62, tokens: '2.85M' },
+    { id: 'alcor-large-2-fast', share: 0.21, tokens: '0.97M' },
+    { id: 'alcor-mini', share: 0.14, tokens: '0.64M' },
+    { id: 'alcor-vision', share: 0.03, tokens: '0.14M' },
+  ],
+  // tokens per day, last 14 days, normalized 0..1
+  daily: [0.18, 0.32, 0.26, 0.55, 0.72, 0.4, 0.1, 0.48, 0.85, 1.0, 0.62, 0.3, 0.7, 0.9],
+  dailyPeak: '612k',
+  tools: [
+    { name: 'Read', count: 402 },
+    { name: 'Edit', count: 214 },
+    { name: 'Shell', count: 178 },
+    { name: 'Search', count: 167 },
+    { name: 'Write', count: 71 },
+    { name: 'Agent', count: 24 },
+  ],
+};
+
+// ── skills (Settings → MCP & Skills tab) ─────────────────────────────────
+
+export const skills = [
+  { name: 'reviewer', state: 'active', desc: 'Reviews diffs before every commit' },
+  { name: 'verifier', state: 'active', desc: 'Runs the project verify loop after edits' },
+  { name: 'changelog-writer', state: 'idle', desc: 'Drafts changelog entries from merged work' },
+  { name: 'release-notes', state: 'disabled', desc: 'Summarizes a milestone into notes' },
+] as const;

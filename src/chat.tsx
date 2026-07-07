@@ -37,7 +37,7 @@ export function Diff({ diff, maxLines }: { diff: FileDiff; maxLines?: number }) 
       })}
       {truncated && (
         <Text color={t.faint}>
-          {'          '}… {diff.lines.length - maxLines!} more lines <Text color={t.dim}>(ctrl+o expands)</Text>
+          {'          '}… {diff.lines.length - maxLines!} more lines <Text color={t.dim}>(Ctrl+O expands)</Text>
         </Text>
       )}
     </Box>
@@ -71,18 +71,18 @@ const TOOL_ICON: Record<ToolKind, string> = {
 };
 
 const TOOL_LABEL: Record<ToolKind, string> = {
-  bash: 'shell',
-  read: 'read',
-  edit: 'edit',
-  write: 'write',
-  rm: 'delete',
-  search: 'search',
-  task: 'agent',
-  todo: 'todos',
-  plan: 'plan',
-  imagine: 'imagine',
-  compact: 'compact',
-  mcp: 'mcp',
+  bash: 'Shell',
+  read: 'Read',
+  edit: 'Edit',
+  write: 'Write',
+  rm: 'Delete',
+  search: 'Search',
+  task: 'Agent',
+  todo: 'Todos',
+  plan: 'Plan',
+  imagine: 'Imagine',
+  compact: 'Compact',
+  mcp: 'MCP',
 };
 
 /** Permission card — "allow once / always / reject", diff preview inline. */
@@ -99,13 +99,13 @@ export function PermCard({ ev }: { ev: PermEvent }) {
       : t.border;
   const verdict =
     ev.state === 'allowed'
-      ? ['✓ allowed once', t.green]
+      ? ['✓ Allowed once', t.green]
       : ev.state === 'always'
-        ? ['✓ always allowed for this session', t.green]
+        ? ['✓ Always allowed for this session', t.green]
         : ev.state === 'auto'
-          ? ['✓ auto-approved (AUTO mode)', t.green]
+          ? ['✓ Auto-approved (AUTO mode)', t.green]
           : ev.state === 'rejected'
-            ? ['✗ rejected — agent will re-plan', t.red]
+            ? ['✗ Rejected — the agent will re-plan', t.red]
             : null;
   return (
     <Box
@@ -119,7 +119,7 @@ export function PermCard({ ev }: { ev: PermEvent }) {
     >
       <Box>
         <Text color={asking ? t.yellow : t.dim} bold>
-          {asking ? '⚿ permission' : '⚿'}
+          {asking ? '⚿ Permission' : '⚿'}
         </Text>
         <Text color={t.fg}> · {ev.action}</Text>
       </Box>
@@ -132,15 +132,15 @@ export function PermCard({ ev }: { ev: PermEvent }) {
         <Box marginTop={0} columnGap={2}>
           <Text>
             <Text color={t.green} bold>[y]</Text>
-            <Text color={t.fg}> allow once</Text>
+            <Text color={t.fg}> Allow once</Text>
           </Text>
           <Text>
             <Text color={t.cyan} bold>[a]</Text>
-            <Text color={t.fg}> always</Text>
+            <Text color={t.fg}> Always</Text>
           </Text>
           <Text>
             <Text color={t.red} bold>[n]</Text>
-            <Text color={t.fg}> reject</Text>
+            <Text color={t.fg}> Reject</Text>
           </Text>
         </Box>
       ) : (
@@ -189,8 +189,8 @@ function ImagineBody({ running }: { running: boolean }) {
       </Box>
       <Text color={t.faint}>
         {running
-          ? `rendering… ${Math.round((shown / imagineArt.length) * 100)}%`
-          : '"the seeing test" · 1024×1024 · saved .alcor/images/uma-chart.png'}
+          ? `Rendering… ${Math.round((shown / imagineArt.length) * 100)}%`
+          : '"The seeing test" · 1024×1024 · Saved to .alcor/images/uma-chart.png'}
       </Text>
     </Box>
   );
@@ -206,10 +206,10 @@ function CompactBody({ running, durationMs }: { running: boolean; durationMs: nu
     <Box flexDirection="column" marginLeft={4}>
       <Box>
         <ProgressBar value={p} width={28} showPct={false} />
-        <Text color={t.dim}> {kept}% of context {running ? '' : '· done'}</Text>
+        <Text color={t.dim}> {kept}% of context {running ? '' : '· Done'}</Text>
       </Box>
       <Text color={t.faint}>
-        {running ? 'folding scrollback, keeping decisions & diffs…' : 'kept: plan, 4 diffs, test results · dropped: raw tool output'}
+        {running ? 'Folding scrollback, keeping decisions & diffs…' : 'Kept: plan, 4 diffs, test results · Dropped: raw tool output'}
       </Text>
     </Box>
   );
@@ -230,7 +230,7 @@ function McpBody() {
             <Text color={t.dim}>{s.lat}</Text>
           </Box>
           <Text color={t.faint}>
-            {s.state === 'ok' ? `${s.tools} tools` : 'unreachable · retrying in 30s'}
+            {s.state === 'ok' ? `${s.tools} tools` : 'Unreachable · Retrying in 30s'}
           </Text>
         </Box>
       ))}
@@ -335,7 +335,7 @@ export function ToolCard({ ev, expanded }: { ev: ToolEvent; expanded: boolean })
           {!running && (
             <Box>
               <Text color={t.faint}>│ └ </Text>
-              <Text color={t.faint}>trace foldable · ctrl+o</Text>
+              <Text color={t.faint}>Trace foldable · Ctrl+O</Text>
             </Box>
           )}
         </Box>
@@ -405,7 +405,7 @@ export function TurnEnd({ ev }: { ev: TextEvent }) {
   const t = useTheme();
   return (
     <Box marginTop={1} marginLeft={2}>
-      <Text color={t.faint}>── turn completed in </Text>
+      <Text color={t.faint}>── Turn completed in </Text>
       <Text color={t.dim}>{ev.text}</Text>
       <Text color={t.faint}> ──</Text>
     </Box>

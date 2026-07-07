@@ -52,13 +52,13 @@ export function DiffReview({ onBack }: { onBack: () => void }) {
       <Box justifyContent="space-between">
         <Text>
           <Text color={t.bright} bold>
-            ± diff review
+            ± Diff review
           </Text>
           <Text color={t.faint}> · {fileDiffs.length} files · </Text>
           <DiffStat add={totalAdd} del={totalDel} />
         </Text>
         <Text color={t.dim}>
-          {decided}/{fileDiffs.length} decided
+          {decided}/{fileDiffs.length} Decided
         </Text>
       </Box>
       <Rule width={columns - 2} />
@@ -99,7 +99,7 @@ export function DiffReview({ onBack }: { onBack: () => void }) {
             );
           })}
           <Box flexGrow={1} />
-          <Text color={t.faint}>a approve · r reject · A all</Text>
+          <Text color={t.faint}>[a] Approve · [r] Reject · [A] All</Text>
         </Box>
 
         {/* patch pane */}
@@ -127,10 +127,10 @@ export function DiffReview({ onBack }: { onBack: () => void }) {
       <Box justifyContent="space-between">
         <Hint
           pairs={[
-            ['↑↓', 'file'],
-            ['pgup/pgdn', 'scroll patch'],
-            ['a/r', 'approve / reject'],
-            ['esc', 'back'],
+            ['↑↓', 'File'],
+            ['PgUp/PgDn', 'Scroll patch'],
+            ['A/R', 'Approve / Reject'],
+            ['Esc', 'Back'],
           ]}
         />
         <Text color={t.faint}>ALCOR α</Text>

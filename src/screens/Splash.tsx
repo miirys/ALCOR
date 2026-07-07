@@ -36,9 +36,8 @@ export function Splash({ onDone }: { onDone: () => void }) {
     >
       <Logo />
       <Box marginTop={1}>
-        <Text color={t.dim}>agent harness · </Text>
         <Text color={t.accentDim}>80 UMa</Text>
-        <Text color={t.faint}> · the seeing test</Text>
+        <Text color={t.faint}> · The seeing test</Text>
       </Box>
 
       <Box marginTop={2} flexDirection="column" alignItems="flex-start" width={46}>
@@ -60,7 +59,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
         <ProgressBar value={progress} width={46} showPct={false} />
       </Box>
       <Box marginTop={1}>
-        <Text color={t.faint}>v0.1.0 · bun/node · press any key to skip</Text>
+        <Text color={t.faint}>v0.1.0 · Press any key to skip</Text>
       </Box>
     </Box>
   );

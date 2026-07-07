@@ -51,7 +51,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
     >
       <Box justifyContent="space-between">
         <Text color={t.bright} bold>
-          changes
+          Changes
         </Text>
         <DiffStat add={totalAdd} del={totalDel} />
       </Box>
@@ -79,20 +79,20 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
         <Text color={t.faint}>{'─'.repeat(30)}</Text>
       </Box>
       <Text color={t.bright} bold>
-        agents
+        Agents
       </Text>
       <Box>
         <Spinner kind="pulse" color={t.magenta} />
         <Text color={t.magenta}> verify-tests</Text>
-        <Text color={t.faint}> · nested</Text>
+        <Text color={t.faint}> · Nested</Text>
       </Box>
       <Box>
         <Text color={t.faint}>○ reviewer</Text>
-        <Text color={t.faint}> · idle</Text>
+        <Text color={t.faint}> · Idle</Text>
       </Box>
       <Box flexGrow={1} />
-      <Text color={t.faint}>session tokens {(tokens / 1000).toFixed(1)}k</Text>
-      <Text color={t.faint}>ctrl+d review diffs</Text>
+      <Text color={t.faint}>Session tokens · {(tokens / 1000).toFixed(1)}k</Text>
+      <Text color={t.faint}>Ctrl+D · Review diffs</Text>
     </Box>
   );
 }
@@ -111,8 +111,8 @@ function Palette({ query, index }: { query: string; index: number }) {
       width={64}
     >
       <Box justifyContent="space-between">
-        <Text color={t.dim}>commands</Text>
-        <Text color={t.faint}>↑↓ choose · enter run · esc close</Text>
+        <Text color={t.dim}>Commands</Text>
+        <Text color={t.faint}>↑↓ Choose · Enter Run · Esc Close</Text>
       </Box>
       {items.slice(0, 8).map((c, i) => (
         <Box key={c.cmd} justifyContent="space-between">
@@ -128,7 +128,7 @@ function Palette({ query, index }: { query: string; index: number }) {
           <Text color={t.faint}>{c.ctx}</Text>
         </Box>
       ))}
-      {items.length === 0 && <Text color={t.faint}>  no matching command</Text>}
+      {items.length === 0 && <Text color={t.faint}>  No matching command</Text>}
     </Box>
   );
 }
@@ -142,7 +142,7 @@ function PlanOverlay({ width }: { width: number }) {
     <Box flexDirection="column" borderStyle="double" borderColor={t.accent} paddingX={2} paddingY={1} width={w}>
       <Box justifyContent="space-between">
         <Text color={t.accent} bold>
-          ▤ PLAN · awaiting review
+          ▤ PLAN · Awaiting review
         </Text>
         <Text color={t.faint}>plan.md</Text>
       </Box>
@@ -183,19 +183,19 @@ function PlanOverlay({ width }: { width: number }) {
           <Text color={t.green} bold>
             [a]
           </Text>
-          <Text color={t.fg}> approve</Text>
+          <Text color={t.fg}> Approve</Text>
         </Text>
         <Text>
           <Text color={t.yellow} bold>
             [c]
           </Text>
-          <Text color={t.fg}> comment</Text>
+          <Text color={t.fg}> Comment</Text>
         </Text>
         <Text>
           <Text color={t.red} bold>
             [q]
           </Text>
-          <Text color={t.fg}> quit — plan kept in scrollback</Text>
+          <Text color={t.fg}> Quit — keep the plan in scrollback</Text>
         </Text>
       </Box>
     </Box>
@@ -209,7 +209,7 @@ function ShortcutsOverlay() {
   return (
     <Box flexDirection="column" borderStyle="round" borderColor={t.borderActive} paddingX={2} paddingY={1}>
       <Text color={t.bright} bold>
-        keyboard — {shortcuts.length} of 50+ shortcuts
+        Keyboard — {shortcuts.length} of 50+ shortcuts
       </Text>
       <Text> </Text>
       <Box columnGap={4}>
@@ -227,7 +227,7 @@ function ShortcutsOverlay() {
         ))}
       </Box>
       <Text> </Text>
-      <Text color={t.faint}>esc closes</Text>
+      <Text color={t.faint}>Esc closes</Text>
     </Box>
   );
 }
@@ -247,9 +247,9 @@ function ModelOverlay({
     <Box flexDirection="column" borderStyle="round" borderColor={t.accent} paddingX={2} paddingY={1} width={66}>
       <Box justifyContent="space-between">
         <Text color={t.accent} bold>
-          ⇄ model
+          ⇄ Model
         </Text>
-        <Text color={t.faint}>↑↓ model · ←→ effort · enter apply · esc</Text>
+        <Text color={t.faint}>↑↓ Model · ←→ Effort · Enter Apply · Esc</Text>
       </Box>
       <Text> </Text>
       {models.map((m, i) => (
@@ -267,7 +267,7 @@ function ModelOverlay({
       ))}
       <Text> </Text>
       <Box>
-        <Text color={t.dim}>reasoning effort  </Text>
+        <Text color={t.dim}>Reasoning effort  </Text>
         {efforts.map((e, i) => (
           <Text key={e}>
             {i === effortIx ? (
@@ -291,9 +291,9 @@ function ThemeOverlay({ row }: { row: number }) {
     <Box flexDirection="column" borderStyle="round" borderColor={t.accent} paddingX={2} paddingY={1} width={56}>
       <Box justifyContent="space-between">
         <Text color={t.accent} bold>
-          ◩ theme
+          ◩ Theme
         </Text>
-        <Text color={t.faint}>↑↓ preview live · enter keep · esc</Text>
+        <Text color={t.faint}>↑↓ Preview live · Enter Keep · Esc</Text>
       </Box>
       <Text> </Text>
       {themes.map((th, i) => (
@@ -353,7 +353,7 @@ function InputBar({
           </Text>
         ) : (
           <Text color={t.faint}>
-            {busy ? 'agent is working — esc interrupts' : 'ask ALCOR anything… ( / for commands )'}
+            {busy ? 'Agent is working — Esc interrupts' : 'Ask ALCOR anything… ( / for commands )'}
             {!busy && <Text color={t.accent}> {cursor}</Text>}
           </Text>
         )}
@@ -363,7 +363,7 @@ function InputBar({
           <Text color={modeColor} bold>
             {m.icon} {m.label}
           </Text>
-          <Text color={t.faint}>  shift+tab cycles · ? shortcuts · ctrl+b sidebar</Text>
+          <Text color={t.faint}>  Shift+Tab Mode · ? Shortcuts · Ctrl+B Sidebar</Text>
         </Text>
         <Text>
           <Text color={t.dim}>{model}</Text>
@@ -402,7 +402,7 @@ export function Session({
           {
             type: 'notice',
             id: 'resume',
-            text: `resumed "${meta.title}" · ${meta.turns} turns restored`,
+            text: `Resumed "${meta.title}" · ${meta.turns} turns restored`,
           },
         ]
       : [],
@@ -543,7 +543,7 @@ export function Session({
       if (verdict === 'rejected') {
         queue.current = [];
         setBusy(false);
-        notice('edit rejected — agent noted the objection and stopped');
+        notice('Edit rejected — the agent noted the objection and stopped');
         return;
       }
       timers.current.push(setTimeout(advance, 300));
@@ -616,7 +616,7 @@ export function Session({
           onBack();
           break;
         default:
-          notice(`unknown command ${cmd}`);
+          notice(`Unknown command ${cmd}`);
       }
     },
     [onBack, onDiff, onSettings, themeIx, modelIx, pushTool, notice],
@@ -634,15 +634,15 @@ export function Session({
     if (overlay === 'plan') {
       if (ch === 'a') {
         setOverlay('none');
-        notice('plan approved — executing');
+        notice('Plan approved — executing');
         setMode('normal');
-        runTurn('(execute approved plan)');
+        runTurn('(Execute the approved plan)');
       } else if (ch === 'c') {
         setOverlay('none');
-        setInput('comment: ');
+        setInput('Comment: ');
       } else if (ch === 'q' || key.escape) {
         setOverlay('none');
-        notice('plan kept in scrollback (plan.md)');
+        notice('Plan kept in scrollback (plan.md)');
       }
       return;
     }
@@ -659,7 +659,7 @@ export function Session({
       if (key.return) {
         setModelIx(modelRow);
         setOverlay('none');
-        notice(`model → ${models[modelRow]!.id} · effort ${efforts[effortIx]}`);
+        notice(`Model → ${models[modelRow]!.id} · Effort ${efforts[effortIx]}`);
       }
       return;
     }
@@ -693,7 +693,7 @@ export function Session({
           );
           return [
             ...next,
-            { type: 'notice', id: `n${Date.now()}`, text: 'interrupted by user' },
+            { type: 'notice', id: `n${Date.now()}`, text: 'Interrupted by user' },
           ];
         });
         return;
@@ -836,18 +836,18 @@ export function Session({
         <Box flexDirection="column" width={mainW} height={bodyH} overflow="hidden">
           {events.length === 0 && !busy && (
             <Box flexDirection="column" marginTop={2} marginLeft={2}>
-              <Text color={t.dim}>new session in </Text>
+              <Text color={t.dim}>New session in </Text>
               <Text color={t.fg}>~/dev/nebula-api</Text>
               <Text> </Text>
-              <Text color={t.faint}>try: "migrate auth middleware to the edge runtime"</Text>
-              <Text color={t.faint}>or type / to browse commands</Text>
+              <Text color={t.faint}>Try: "Migrate auth middleware to the edge runtime"</Text>
+              <Text color={t.faint}>Or type / to browse commands</Text>
             </Box>
           )}
           <Box flexGrow={1} />
           {visible.map((e) => (
             <EventView key={e.id} ev={e} expanded={expanded} isLast={e.id === lastId} />
           ))}
-          {scroll > 0 && <Text color={t.yellow}>▼ {scroll} newer — pgdn</Text>}
+          {scroll > 0 && <Text color={t.yellow}>▼ {scroll} newer — PgDn</Text>}
         </Box>
         {showSidebar && <Sidebar height={bodyH} tokens={tokens} />}
       </Box>

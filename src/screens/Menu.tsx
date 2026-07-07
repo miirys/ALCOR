@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { Logo, Badge, Hint, Rule, Spinner, useTheme } from '../ui.tsx';
+import { Logo, Hint, Rule, Spinner, useTheme } from '../ui.tsx';
 import { useTermSize } from '../hooks.ts';
 import { sessions, SessionMeta } from '../mock/data.ts';
 
 const ACTIONS = [
-  { key: 'new', icon: '✦', label: 'New session', hint: 'start fresh in cwd' },
-  { key: 'settings', icon: '⚙', label: 'Settings', hint: 'theme · model · behavior' },
-  { key: 'quit', icon: '⏻', label: 'Quit', hint: 'leave the harness' },
+  { key: 'new', icon: '✦', label: 'New session', hint: 'Start fresh in the current directory' },
+  { key: 'settings', icon: '⚙', label: 'Settings', hint: 'Theme · Model · Stats · Skills' },
+  { key: 'quit', icon: '⏻', label: 'Quit', hint: 'Exit ALCOR' },
 ] as const;
 
 function StatusDot({ s }: { s: SessionMeta['status'] }) {
@@ -77,13 +77,13 @@ export function Menu({
       <Box flexGrow={1} />
       <Logo />
       <Box marginTop={1} marginBottom={1}>
-        <Text color={t.dim}>agent harness · </Text>
-        <Badge label="BETA" color={t.selBg} fg={t.accent} />
-        <Text color={t.dim}> · alcor-large-2</Text>
+        <Text color={t.accentDim}>✦ </Text>
+        <Text color={t.faint}>80 UMa · v0.1.0 · </Text>
+        <Text color={t.dim}>alcor-large-2</Text>
       </Box>
 
       <Box flexDirection="column" width={inner}>
-        <Rule width={inner} label="sessions" />
+        <Rule width={inner} label="Sessions" />
         <Box flexDirection="column" marginTop={1} rowGap={0}>
           {sessions.map((s, i) => (
             <Box key={s.id} marginBottom={i === sessions.length - 1 ? 0 : 1}>
@@ -116,11 +116,11 @@ export function Menu({
       <Box width={columns - 2} justifyContent="space-between" paddingX={1}>
         <Hint
           pairs={[
-            ['↑↓', 'navigate'],
-            ['enter', 'open'],
-            ['n', 'new'],
-            ['s', 'settings'],
-            ['q', 'quit'],
+            ['↑↓', 'Navigate'],
+            ['Enter', 'Open'],
+            ['N', 'New'],
+            ['S', 'Settings'],
+            ['Q', 'Quit'],
           ]}
         />
         <Text color={t.faint}>ALCOR α</Text>

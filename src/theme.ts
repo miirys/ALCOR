@@ -1,8 +1,9 @@
 /**
  * ALCOR theme system.
- * Default theme "Alcor Night" is monochrome-leaning: near-black canvas,
- * a ladder of grays for chrome, and a single lavender accent that carries
- * all the identity — plus semantic colors reserved for diffs & state.
+ * The default, "Alcor Night", is true monochrome: a near-black canvas and a
+ * ladder of silvers. Color is reserved for meaning — green/red in diffs,
+ * yellow for pending decisions, small status markers. Accent themes swap the
+ * silver for a hue without touching the semantics.
  */
 
 export interface Theme {
@@ -20,9 +21,9 @@ export interface Theme {
   green: string;
   red: string;
   yellow: string;
-  cyan: string;
+  cyan: string; // inline code, hunk headers
   blue: string;
-  magenta: string;
+  magenta: string; // subagents
   addBg: string; // diff added line tint
   delBg: string; // diff deleted line tint
   selBg: string; // selection background
@@ -32,6 +33,28 @@ export const themes: Theme[] = [
   {
     name: 'Alcor Night',
     id: 'alcor-night',
+    bg: '#0a0a0a',
+    fg: '#c9c9cf',
+    bright: '#f5f5f7',
+    dim: '#6f6f78',
+    faint: '#3f3f46',
+    border: '#26262b',
+    borderActive: '#52525b',
+    accent: '#e8e8ee',
+    accentDim: '#8a8a94',
+    green: '#9ece6a',
+    red: '#f7768e',
+    yellow: '#e0af68',
+    cyan: '#9db4c0',
+    blue: '#8fa3b3',
+    magenta: '#aaa2b8',
+    addBg: '#14201a',
+    delBg: '#241418',
+    selBg: '#1b1b20',
+  },
+  {
+    name: 'Alcor Violet',
+    id: 'alcor-violet',
     bg: '#0a0a0a',
     fg: '#c9c9d1',
     bright: '#f4f4f5',
@@ -96,26 +119,70 @@ export const themes: Theme[] = [
     selBg: '#0f1c0f',
   },
   {
-    name: 'Graphite',
-    id: 'graphite',
-    bg: '#0c0c0c',
-    fg: '#c0c0c0',
-    bright: '#ffffff',
-    dim: '#6f6f6f',
-    faint: '#454545',
-    border: '#262626',
-    borderActive: '#5a5a5a',
-    accent: '#e6e6e6',
-    accentDim: '#8a8a8a',
+    name: 'Ember',
+    id: 'ember',
+    bg: '#0c0907',
+    fg: '#d2c6ba',
+    bright: '#f7efe6',
+    dim: '#7d7066',
+    faint: '#463d36',
+    border: '#2a231e',
+    borderActive: '#5c4c40',
+    accent: '#f0a868',
+    accentDim: '#9a6a3e',
+    green: '#a5c48a',
+    red: '#ef7d7d',
+    yellow: '#e8c170',
+    cyan: '#8fc0b5',
+    blue: '#8fa9c9',
+    magenta: '#c9a0b8',
+    addBg: '#17200f',
+    delBg: '#291312',
+    selBg: '#221a13',
+  },
+  {
+    name: 'Rose',
+    id: 'rose',
+    bg: '#0b080a',
+    fg: '#cfc3c9',
+    bright: '#f6eef2',
+    dim: '#7a6c74',
+    faint: '#453b41',
+    border: '#292127',
+    borderActive: '#5a4652',
+    accent: '#eb87a8',
+    accentDim: '#96566e',
+    green: '#9ec98f',
+    red: '#f27d8f',
+    yellow: '#e3b571',
+    cyan: '#8fbfc9',
+    blue: '#93a4d1',
+    magenta: '#d19ad1',
+    addBg: '#132010',
+    delBg: '#2a1218',
+    selBg: '#211820',
+  },
+  {
+    name: 'Fjord',
+    id: 'fjord',
+    bg: '#0a0c10',
+    fg: '#c3cbd7',
+    bright: '#eceff4',
+    dim: '#6c7686',
+    faint: '#3e4552',
+    border: '#232935',
+    borderActive: '#4c566a',
+    accent: '#88c0d0',
+    accentDim: '#527885',
     green: '#a3be8c',
     red: '#bf616a',
-    yellow: '#d0b47c',
-    cyan: '#88c0d0',
+    yellow: '#ebcb8b',
+    cyan: '#8fbcbb',
     blue: '#81a1c1',
     magenta: '#b48ead',
-    addBg: '#141d14',
-    delBg: '#211414',
-    selBg: '#1a1a1a',
+    addBg: '#111f16',
+    delBg: '#241318',
+    selBg: '#161c26',
   },
 ];
 
