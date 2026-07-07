@@ -8,6 +8,17 @@ import { useFrame } from './hooks.ts';
 export const ThemeCtx = createContext<Theme>(defaultTheme);
 export const useTheme = () => useContext(ThemeCtx);
 
+/** True while the first Ctrl+C is armed — footers show the exit hint. */
+export const ExitArmCtx = createContext(false);
+
+/** Bottom-right corner: brand tag, or the exit warning while armed. */
+export function CornerTag() {
+  const t = useTheme();
+  const armed = useContext(ExitArmCtx);
+  if (armed) return <Text color={t.yellow}>Press Ctrl+C again to exit</Text>;
+  return <Text color={t.faint}>ALCOR α</Text>;
+}
+
 // ── logo ─────────────────────────────────────────────────────────────────
 
 export const LOGO = [
@@ -122,7 +133,7 @@ export function ContextMeter({ used, max }: { used: number; max: number }) {
     n >= 1000 ? `${(n / 1000).toFixed(n >= 100_000 ? 0 : 1)}k` : `${n}`;
   return (
     <Text>
-      <Text color={t.faint}>ctx </Text>
+      <Text color={t.faint}>CTX </Text>
       <Text color={color}>{'▰'.repeat(filled)}</Text>
       <Text color={t.faint}>{'▱'.repeat(cells - filled)}</Text>
       <Text color={t.dim}>

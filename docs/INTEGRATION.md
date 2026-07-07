@@ -118,14 +118,17 @@ Emit `{type:'perm', action, diff?}` and **stop yielding** until
 
 ## 6. Modes
 
-Shift+Tab cycles `NORMAL / PLAN / AUTO`. Map to Duo:
+Shift+Tab cycles `BUILD / PLAN / AUTO`. Map to Duo:
 
-- **NORMAL** → Duo *Build* mode (read-write, prompts for approval).
+- **BUILD** → Duo *Build* mode (read-write). ALCOR's Build auto-approves
+  **file edits** but still asks for **shell commands** — the perm gate in
+  `advance()` keys off `PermEvent.kind`.
 - **PLAN** → Duo *Plan* mode (read-only). On completion, show the plan in
-  the plan overlay; `[a]` approve should re-run in Build mode (the UI
-  already does `runTurn('(Execute the approved plan)')` on approve).
-- **AUTO** → Build with auto-approval (Duo headless behavior /
-  `duo_cli_auto_run: true`).
+  the plan overlay; `[a]` approve re-runs in Build mode (the UI already
+  does `runTurn('(Execute the approved plan)')` on approve).
+- **AUTO** → Build with full auto-approval (Duo headless behavior /
+  `duo_cli_auto_run: true`). Everything is approved; perm events render
+  pre-resolved with `state:'auto'` so the transcript keeps the audit trail.
 
 ## 7. Slash commands
 
@@ -161,7 +164,22 @@ Themes (`src/theme.ts`), all animations (`src/hooks.ts`, `src/ui.tsx`),
 layout, keybindings, and the stats visualizations' rendering. The Stats tab
 consumes the `stats` shape as-is — return real numbers and it just works.
 
-## 10. Suggested integration order
+## 10. Hard requirements on the backend
+
+Two behaviors the UI depends on that the stock backend gets wrong today:
+
+- **Cancellation must actually cancel.** Esc during a turn calls
+  `interrupt()`. The backend must abort the in-flight model request and
+  tool execution and emit a final `notice` — it must not keep "thinking"
+  after the user pressed Esc (twice). If the underlying stream can't be
+  killed, drop its output on the floor and mark the turn interrupted; the
+  UI already renders in-flight tools as `error · interrupted`.
+- **Exit is two-step.** Ctrl+C is handled in the UI (press twice within
+  2.5 s). On exit the UI prints `Resume this session with alcor --resume
+  {session_id}` — so `newSession()`/`resumeSession()` must return stable
+  session ids that a later `--resume` can find.
+
+## 11. Suggested integration order
 
 1. `listSessions()` + menu screen (read-only, instantly demo-able).
 2. `runTurn()` happy path: thinking → tools → assistant → turn-end.

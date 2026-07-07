@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useApp, useInput } from 'ink';
-import { ThemeCtx } from './ui.tsx';
+import { ThemeCtx, ExitArmCtx } from './ui.tsx';
 import { themes } from './theme.ts';
 import { Splash } from './screens/Splash.tsx';
 import { Menu } from './screens/Menu.tsx';
@@ -17,6 +17,8 @@ export function App() {
   const [prev, setPrev] = useState<Screen>('menu');
   const [themeIx, setThemeIx] = useState(0);
   const [active, setActive] = useState<SessionMeta | null>(null);
+  const [exitArm, setExitArm] = useState(false);
+  const armTimer = useRef<NodeJS.Timeout | null>(null);
 
   const go = useCallback(
     (next: Screen) => {
@@ -26,6 +28,20 @@ export function App() {
     [screen],
   );
 
+  // Ctrl+C is a two-step exit: the first press arms a short-lived warning
+  // (accidental hits are free), the second within the window really quits.
+  useInput((ch, key) => {
+    if (!(key.ctrl && ch === 'c')) return;
+    if (exitArm) {
+      if (armTimer.current) clearTimeout(armTimer.current);
+      exit();
+      return;
+    }
+    setExitArm(true);
+    if (armTimer.current) clearTimeout(armTimer.current);
+    armTimer.current = setTimeout(() => setExitArm(false), 2500);
+  });
+
   // splash: any key skips
   useInput(
     () => {
@@ -34,42 +50,40 @@ export function App() {
     { isActive: screen === 'splash' },
   );
 
-  const cycleTheme = useCallback(
-    () => setThemeIx((i) => (i + 1) % themes.length),
-    [],
-  );
-
   return (
     <ThemeCtx.Provider value={themes[themeIx]!}>
-      {screen === 'splash' && <Splash onDone={() => setScreen('menu')} />}
-      {screen === 'menu' && (
-        <Menu
-          onOpen={(s) => {
-            setActive(s);
-            go('session');
-          }}
-          onSettings={() => go('settings')}
-          onQuit={exit}
-        />
-      )}
-      {screen === 'session' && (
-        <Session
-          meta={active}
-          onBack={() => go('menu')}
-          onSettings={() => go('settings')}
-          onDiff={() => go('diff')}
-          themeIx={themeIx}
-          onSetTheme={setThemeIx}
-        />
-      )}
-      {screen === 'settings' && (
-        <Settings
-          themeIx={themeIx}
-          onTheme={setThemeIx}
-          onBack={() => setScreen(prev === 'settings' ? 'menu' : prev)}
-        />
-      )}
-      {screen === 'diff' && <DiffReview onBack={() => setScreen('session')} />}
+      <ExitArmCtx.Provider value={exitArm}>
+        {screen === 'splash' && <Splash onDone={() => setScreen('menu')} />}
+        {screen === 'menu' && (
+          <Menu
+            onOpen={(s) => {
+              setActive(s);
+              (globalThis as Record<string, unknown>).__ALCOR_SESSION__ = s?.id ?? `s-${Date.now().toString(36)}`;
+              go('session');
+            }}
+            onSettings={() => go('settings')}
+            onQuit={exit}
+          />
+        )}
+        {screen === 'session' && (
+          <Session
+            meta={active}
+            onBack={() => go('menu')}
+            onSettings={() => go('settings')}
+            onDiff={() => go('diff')}
+            themeIx={themeIx}
+            onSetTheme={setThemeIx}
+          />
+        )}
+        {screen === 'settings' && (
+          <Settings
+            themeIx={themeIx}
+            onTheme={setThemeIx}
+            onBack={() => setScreen(prev === 'settings' ? 'menu' : prev)}
+          />
+        )}
+        {screen === 'diff' && <DiffReview onBack={() => setScreen('session')} />}
+      </ExitArmCtx.Provider>
     </ThemeCtx.Provider>
   );
 }

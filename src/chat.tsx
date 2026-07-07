@@ -85,28 +85,42 @@ const TOOL_LABEL: Record<ToolKind, string> = {
   mcp: 'MCP',
 };
 
-/** Permission card — "allow once / always / reject", diff preview inline. */
-export function PermCard({ ev }: { ev: PermEvent }) {
+/**
+ * Permission card — the agent pauses and asks before acting.
+ * Asking state is a roomy, clearly-sectioned panel; resolved states
+ * collapse to a single quiet line so the transcript stays readable.
+ */
+export function PermCard({ ev, width = 88 }: { ev: PermEvent; width?: number }) {
   const t = useTheme();
   const asking = ev.state === 'ask';
-  const frame = useFrame(4, asking);
-  const borderColor = asking
-    ? frame % 2 === 0
-      ? t.yellow
-      : t.accentDim
-    : ev.state === 'rejected'
-      ? t.red
-      : t.border;
-  const verdict =
-    ev.state === 'allowed'
-      ? ['✓ Allowed once', t.green]
-      : ev.state === 'always'
-        ? ['✓ Always allowed for this session', t.green]
-        : ev.state === 'auto'
-          ? ['✓ Auto-approved (AUTO mode)', t.green]
-          : ev.state === 'rejected'
-            ? ['✗ Rejected — the agent will re-plan', t.red]
-            : null;
+  const frame = useFrame(3, asking);
+
+  if (!asking) {
+    const verdict =
+      ev.state === 'allowed'
+        ? ['✓ Allowed once', t.green]
+        : ev.state === 'always'
+          ? ['✓ Always allowed for this session', t.green]
+          : ev.state === 'auto'
+            ? ['✓ Auto-approved', t.green]
+            : ['✗ Rejected — the agent stopped', t.red];
+    return (
+      <Box marginLeft={2} marginTop={1}>
+        <Text color={t.faint}>│ </Text>
+        <Text color={verdict[1]!}>{ev.state === 'rejected' ? '✗' : '✓'}</Text>
+        <Text color={t.dim} bold>
+          {' '}
+          Permission
+        </Text>
+        <Text color={t.faint}> · </Text>
+        <Text color={t.fg}>{ev.action}</Text>
+        {ev.detail && <Text color={t.dim}> · {ev.detail}</Text>}
+        <Text color={t.faint}>  {verdict[0]}</Text>
+      </Box>
+    );
+  }
+
+  const borderColor = frame % 2 === 0 ? t.yellow : t.borderActive;
   return (
     <Box
       flexDirection="column"
@@ -114,38 +128,51 @@ export function PermCard({ ev }: { ev: PermEvent }) {
       marginTop={1}
       borderStyle="round"
       borderColor={borderColor}
-      paddingX={1}
-      width={64}
+      paddingX={2}
+      paddingY={0}
+      width={width}
     >
-      <Box>
-        <Text color={asking ? t.yellow : t.dim} bold>
-          {asking ? '⚿ Permission' : '⚿'}
+      <Box justifyContent="space-between">
+        <Text color={t.yellow} bold>
+          Permission required
         </Text>
-        <Text color={t.fg}> · {ev.action}</Text>
+        <Text color={t.faint}>{ev.kind === 'edit' ? 'File edit' : 'Shell command'}</Text>
       </Box>
-      {asking && ev.diff && (
-        <Box flexDirection="column" marginTop={0}>
-          <Diff diff={ev.diff} maxLines={5} />
+      <Box marginTop={1}>
+        <Text color={t.bright} bold>
+          {ev.action}
+        </Text>
+      </Box>
+      {ev.detail && (
+        <Box marginLeft={2}>
+          <Text color={t.cyan}>$ {ev.detail}</Text>
         </Box>
       )}
-      {asking ? (
-        <Box marginTop={0} columnGap={2}>
-          <Text>
-            <Text color={t.green} bold>[y]</Text>
-            <Text color={t.fg}> Allow once</Text>
-          </Text>
-          <Text>
-            <Text color={t.cyan} bold>[a]</Text>
-            <Text color={t.fg}> Always</Text>
-          </Text>
-          <Text>
-            <Text color={t.red} bold>[n]</Text>
-            <Text color={t.fg}> Reject</Text>
-          </Text>
+      {ev.diff && (
+        <Box flexDirection="column" marginTop={1}>
+          <Diff diff={ev.diff} maxLines={8} />
         </Box>
-      ) : (
-        verdict && <Text color={verdict[1]!}>{verdict[0]}</Text>
       )}
+      <Box marginTop={1} columnGap={3}>
+        <Text>
+          <Text color={t.green} bold>
+            [y]
+          </Text>
+          <Text color={t.fg}> Allow once</Text>
+        </Text>
+        <Text>
+          <Text color={t.cyan} bold>
+            [a]
+          </Text>
+          <Text color={t.fg}> Always for this session</Text>
+        </Text>
+        <Text>
+          <Text color={t.red} bold>
+            [n]
+          </Text>
+          <Text color={t.fg}> Reject</Text>
+        </Text>
+      </Box>
     </Box>
   );
 }
@@ -375,14 +402,22 @@ function Prose({ text }: { text: string }) {
   );
 }
 
-export function AssistantMsg({ ev, streaming }: { ev: TextEvent; streaming: boolean }) {
+export function AssistantMsg({
+  ev,
+  streaming,
+  width = 84,
+}: {
+  ev: TextEvent;
+  streaming: boolean;
+  width?: number;
+}) {
   const t = useTheme();
   const { visible, done } = useTypewriter(ev.text, 260, streaming);
   return (
     <Box marginTop={1} marginLeft={2} flexDirection="column">
       <Box>
         <Text color={t.faint}>◆ </Text>
-        <Box flexDirection="column" flexShrink={1}>
+        <Box flexDirection="column" width={width}>
           <Prose text={streaming ? visible + (done ? '' : '▋') : ev.text} />
         </Box>
       </Box>
@@ -427,16 +462,19 @@ export function EventView({
   ev,
   expanded,
   isLast,
+  width = 88,
 }: {
   ev: Event;
   expanded: boolean;
   isLast: boolean;
+  /** Available content width — prose and cards stay comfortably inside it. */
+  width?: number;
 }) {
   switch (ev.type) {
     case 'user':
       return <UserMsg ev={ev} />;
     case 'assistant':
-      return <AssistantMsg ev={ev} streaming={isLast} />;
+      return <AssistantMsg ev={ev} streaming={isLast} width={Math.min(84, width - 8)} />;
     case 'thinking':
       return <Thinking ev={ev} active={isLast} />;
     case 'turn-end':
@@ -446,6 +484,6 @@ export function EventView({
     case 'tool':
       return <ToolCard ev={ev} expanded={expanded} />;
     case 'perm':
-      return <PermCard ev={ev} />;
+      return <PermCard ev={ev} width={Math.min(92, width - 4)} />;
   }
 }

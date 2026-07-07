@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { Hint, Rule, useTheme } from '../ui.tsx';
+import { Hint, Rule, CornerTag, useTheme } from '../ui.tsx';
 import { Diff, DiffStat } from '../chat.tsx';
 import { useTermSize } from '../hooks.ts';
 import { fileDiffs } from '../mock/data.ts';
@@ -133,7 +133,7 @@ export function DiffReview({ onBack }: { onBack: () => void }) {
             ['Esc', 'Back'],
           ]}
         />
-        <Text color={t.faint}>ALCOR α</Text>
+        <CornerTag />
       </Box>
     </Box>
   );

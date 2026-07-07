@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { Hint, Rule, Spinner, useTheme } from '../ui.tsx';
+import { Hint, Rule, CornerTag, useTheme } from '../ui.tsx';
 import { useTermSize } from '../hooks.ts';
 import { themes } from '../theme.ts';
 import { models as MODELS, mcpServers, skills, stats } from '../mock/data.ts';
@@ -9,7 +9,7 @@ const TABS = ['Appearance', 'Model', 'Behavior', 'Stats', 'MCP & Skills', 'Keys'
 type Tab = (typeof TABS)[number];
 
 const BEHAVIOR = [
-  { k: 'Auto-approve edits', v: 'off', desc: 'Apply file edits without confirmation' },
+  { k: 'Auto-approve edits', v: 'on', desc: 'Build mode applies file edits without asking' },
   { k: 'Verify after change', v: 'on', desc: 'Run the project verify loop after edits' },
   { k: 'Turn timer', v: 'on', desc: 'Print "Turn completed in …" after each turn' },
   { k: 'Context warnings', v: '80%', desc: 'Warn when context passes the threshold' },
@@ -231,7 +231,7 @@ export function Settings({
       <Box marginTop={1} width={w} flexDirection="column">
         <Box justifyContent="space-between">
           <Text color={t.bright} bold>
-            ⚙ Settings
+            ◈ Settings
           </Text>
           <Text color={t.faint}>Changes apply live · Nothing persists (mock)</Text>
         </Box>
@@ -345,7 +345,7 @@ export function Settings({
             ['Esc', 'Back'],
           ]}
         />
-        <Text color={t.faint}>ALCOR α</Text>
+        <CornerTag />
       </Box>
     </Box>
   );

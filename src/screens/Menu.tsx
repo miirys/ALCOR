@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { Logo, Hint, Rule, Spinner, useTheme } from '../ui.tsx';
+import { Logo, Hint, Rule, Spinner, CornerTag, useTheme } from '../ui.tsx';
 import { useTermSize } from '../hooks.ts';
 import { sessions, SessionMeta } from '../mock/data.ts';
 
 const ACTIONS = [
   { key: 'new', icon: '✦', label: 'New session', hint: 'Start fresh in the current directory' },
-  { key: 'settings', icon: '⚙', label: 'Settings', hint: 'Theme · Model · Stats · Skills' },
-  { key: 'quit', icon: '⏻', label: 'Quit', hint: 'Exit ALCOR' },
+  { key: 'settings', icon: '◈', label: 'Settings', hint: 'Theme · Model · Stats · Skills' },
+  { key: 'quit', icon: '×', label: 'Quit', hint: 'Exit ALCOR' },
 ] as const;
 
 function StatusDot({ s }: { s: SessionMeta['status'] }) {
@@ -123,7 +123,7 @@ export function Menu({
             ['Q', 'Quit'],
           ]}
         />
-        <Text color={t.faint}>ALCOR α</Text>
+        <CornerTag />
       </Box>
     </Box>
   );

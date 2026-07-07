@@ -201,12 +201,14 @@ export interface TextEvent {
   stream?: boolean;
 }
 
-/** Permission card: agent asks before touching a file (grok-build style). */
+/** Permission card: the agent asks before acting. */
 export interface PermEvent {
   type: 'perm';
   id: string;
-  action: string; // e.g. "edit src/middleware/auth.ts"
+  action: string; // e.g. "Edit src/middleware/auth.ts"
+  kind: 'edit' | 'command'; // edits auto-approve in Build; commands still ask
   diff?: FileDiff;
+  detail?: string; // one-line preview for commands
   state: 'ask' | 'allowed' | 'always' | 'rejected' | 'auto';
 }
 
@@ -280,7 +282,8 @@ export function demoTurn(userText: string): ScriptStep[] {
       event: {
         type: 'perm',
         id: id(),
-        action: 'edit src/middleware/auth.ts',
+        action: 'Edit src/middleware/auth.ts',
+        kind: 'edit',
         diff: fileDiffs[0],
         state: 'ask',
       },
@@ -346,7 +349,18 @@ export function demoTurn(userText: string): ScriptStep[] {
       },
     },
     {
-      after: 8000,
+      after: 7800,
+      event: {
+        type: 'perm',
+        id: id(),
+        action: 'Run shell command',
+        kind: 'command',
+        detail: 'bun run typecheck',
+        state: 'ask',
+      },
+    },
+    {
+      after: 8100,
       event: {
         type: 'tool',
         id: id(),
@@ -389,7 +403,7 @@ export const planMarkdown = [
 
 export const shortcuts: [string, string][] = [
   ['Enter', 'Send message'],
-  ['Shift+Tab', 'Cycle mode — Normal / Plan / Auto'],
+  ['Shift+Tab', 'Cycle mode — Build / Plan / Auto'],
   ['/', 'Command palette'],
   ['Ctrl+B', 'Toggle sidebar'],
   ['Ctrl+D', 'Review diffs'],

@@ -19,14 +19,20 @@ const enter = () => out.write('\x1b[?1049h\x1b[?25l\x1b[2J\x1b[H');
 const leave = () => out.write('\x1b[?1049l\x1b[?25h');
 
 enter();
-const instance = render(<App />, { exitOnCtrlC: true });
+// Ctrl+C is handled in-app (double-press to exit), not by Ink.
+const instance = render(<App />, { exitOnCtrlC: false });
 
-const cleanup = () => leave();
+let left = false;
+const cleanup = () => {
+  if (left) return;
+  left = true;
+  leave();
+  const sessionId = (globalThis as Record<string, unknown>).__ALCOR_SESSION__;
+  if (typeof sessionId === 'string') {
+    out.write(`Resume this session with alcor --resume ${sessionId}\n`);
+  }
+};
 process.on('exit', cleanup);
-process.on('SIGINT', () => {
-  cleanup();
-  process.exit(0);
-});
 process.on('SIGTERM', () => {
   cleanup();
   process.exit(0);

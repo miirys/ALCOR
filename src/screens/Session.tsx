@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { StarMark, ContextMeter, Hint, Spinner, useTheme } from '../ui.tsx';
+import { StarMark, ContextMeter, Hint, Spinner, CornerTag, useTheme } from '../ui.tsx';
 import { EventView, DiffStat } from '../chat.tsx';
 import { useTermSize, useFrame } from '../hooks.ts';
 import {
@@ -19,19 +19,20 @@ import {
 } from '../mock/data.ts';
 import { themes } from '../theme.ts';
 
-type Mode = 'normal' | 'plan' | 'auto';
-const MODES: Mode[] = ['normal', 'plan', 'auto'];
+type Mode = 'build' | 'plan' | 'auto';
+const MODES: Mode[] = ['build', 'plan', 'auto'];
 
 const MODE_STYLE: Record<Mode, { label: string; icon: string }> = {
-  normal: { label: 'NORMAL', icon: '⏵' },
+  build: { label: 'BUILD', icon: '❯' },
   plan: { label: 'PLAN', icon: '▤' },
-  auto: { label: 'AUTO', icon: '⏩' },
+  auto: { label: 'AUTO', icon: '≫' },
 };
 
 // ── sidebar ──────────────────────────────────────────────────────────────
 
-function Sidebar({ height, tokens }: { height: number; tokens: number }) {
+function Sidebar({ width, height, tokens }: { width: number; height: number; tokens: number }) {
   const t = useTheme();
+  const inner = width - 4;
   const totalAdd = fileDiffs.reduce((a, d) => a + d.add, 0);
   const totalDel = fileDiffs.reduce((a, d) => a + d.del, 0);
   const dirs = new Map<string, typeof fileDiffs>();
@@ -42,7 +43,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
   return (
     <Box
       flexDirection="column"
-      width={34}
+      width={width}
       height={height}
       borderStyle="round"
       borderColor={t.border}
@@ -55,7 +56,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
         </Text>
         <DiffStat add={totalAdd} del={totalDel} />
       </Box>
-      <Text color={t.faint}>{'─'.repeat(30)}</Text>
+      <Text color={t.faint}>{'─'.repeat(inner)}</Text>
       {[...dirs.entries()].map(([dir, files]) => (
         <Box key={dir} flexDirection="column">
           <Text color={t.dim}>▾ {dir}/</Text>
@@ -67,7 +68,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
               <Box key={f.path} marginLeft={2} justifyContent="space-between">
                 <Text>
                   <Text color={sc}>{f.status}</Text>
-                  <Text color={t.fg}> {name.length > 20 ? name.slice(0, 19) + '…' : name}</Text>
+                  <Text color={t.fg}> {name.length > inner - 12 ? name.slice(0, inner - 13) + '…' : name}</Text>
                 </Text>
                 <DiffStat add={f.add} del={f.del} />
               </Box>
@@ -76,7 +77,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
         </Box>
       ))}
       <Box marginTop={1}>
-        <Text color={t.faint}>{'─'.repeat(30)}</Text>
+        <Text color={t.faint}>{'─'.repeat(inner)}</Text>
       </Box>
       <Text color={t.bright} bold>
         Agents
@@ -99,7 +100,7 @@ function Sidebar({ height, tokens }: { height: number; tokens: number }) {
 
 // ── command palette ──────────────────────────────────────────────────────
 
-function Palette({ query, index }: { query: string; index: number }) {
+function Palette({ query, index, width }: { query: string; index: number; width: number }) {
   const t = useTheme();
   const items = slashCommands.filter((c) => c.cmd.startsWith(query));
   return (
@@ -108,7 +109,7 @@ function Palette({ query, index }: { query: string; index: number }) {
       borderStyle="round"
       borderColor={t.accentDim}
       paddingX={1}
-      width={64}
+      width={width}
     >
       <Box justifyContent="space-between">
         <Text color={t.dim}>Commands</Text>
@@ -137,7 +138,7 @@ function Palette({ query, index }: { query: string; index: number }) {
 
 function PlanOverlay({ width }: { width: number }) {
   const t = useTheme();
-  const w = Math.min(width - 8, 72);
+  const w = Math.min(width - 6, 76);
   return (
     <Box flexDirection="column" borderStyle="double" borderColor={t.accent} paddingX={2} paddingY={1} width={w}>
       <Box justifyContent="space-between">
@@ -237,14 +238,23 @@ function ModelOverlay({
   row,
   effortIx,
   currentIx,
+  width,
 }: {
   row: number;
   effortIx: number;
   currentIx: number;
+  width: number;
 }) {
   const t = useTheme();
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor={t.accent} paddingX={2} paddingY={1} width={66}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor={t.accent}
+      paddingX={2}
+      paddingY={1}
+      width={Math.min(width - 6, 70)}
+    >
       <Box justifyContent="space-between">
         <Text color={t.accent} bold>
           ⇄ Model
@@ -285,10 +295,17 @@ function ModelOverlay({
 }
 
 /** /theme — in-chat picker with live swatches; applies instantly on move. */
-function ThemeOverlay({ row }: { row: number }) {
+function ThemeOverlay({ row, width }: { row: number; width: number }) {
   const t = useTheme();
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor={t.accent} paddingX={2} paddingY={1} width={56}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor={t.accent}
+      paddingX={2}
+      paddingY={1}
+      width={Math.min(width - 6, 58)}
+    >
       <Box justifyContent="space-between">
         <Text color={t.accent} bold>
           ◩ Theme
@@ -337,24 +354,23 @@ function InputBar({
   const cursor = frame % 2 === 0 ? '▋' : ' ';
   const m = MODE_STYLE[mode];
   const modeColor = mode === 'plan' ? t.yellow : mode === 'auto' ? t.green : t.accent;
+  // Only PLAN recolors the input border; Build and Auto share the default.
+  const borderColor = busy ? t.border : mode === 'plan' ? t.yellow : t.borderActive;
   return (
     <Box flexDirection="column" width={width}>
-      <Box
-        borderStyle="round"
-        borderColor={busy ? t.border : modeColor === t.accent ? t.borderActive : modeColor}
-        paddingX={1}
-        width={width}
-      >
+      <Box borderStyle="round" borderColor={borderColor} paddingX={1} width={width}>
         <Text color={busy ? t.faint : t.accent}>❯ </Text>
         {value ? (
           <Text color={t.bright}>
             {value}
             <Text color={t.accent}>{cursor}</Text>
           </Text>
+        ) : busy ? (
+          <Text color={t.faint}>Agent is working — Esc interrupts</Text>
         ) : (
-          <Text color={t.faint}>
-            {busy ? 'Agent is working — Esc interrupts' : 'Ask ALCOR anything… ( / for commands )'}
-            {!busy && <Text color={t.accent}> {cursor}</Text>}
+          <Text>
+            <Text color={t.accent}>{cursor}</Text>
+            <Text color={t.faint}> Ask ALCOR anything… ( / for commands )</Text>
           </Text>
         )}
       </Box>
@@ -368,7 +384,7 @@ function InputBar({
         <Text>
           <Text color={t.dim}>{model}</Text>
           <Text color={t.faint}> · </Text>
-          <Text color={t.accentDim}>ALCOR α</Text>
+          <CornerTag />
         </Text>
       </Box>
     </Box>
@@ -408,7 +424,7 @@ export function Session({
       : [],
   );
   const [input, setInput] = useState('');
-  const [mode, setMode] = useState<Mode>('normal');
+  const [mode, setMode] = useState<Mode>('build');
   const [busy, setBusy] = useState(false);
   const [sidebar, setSidebar] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -427,6 +443,7 @@ export function Session({
   const queue = useRef<ScriptStep[]>([]);
   const qi = useRef(0);
   const pendingPerm = useRef<string | null>(null);
+  const pasteCount = useRef(0);
   const modeRef = useRef(mode);
   modeRef.current = mode;
   const alwaysRef = useRef(alwaysAllow);
@@ -457,7 +474,11 @@ export function Session({
     );
   }, []);
 
-  /** Sequential turn engine — pauses on permission cards. */
+  /**
+   * Sequential turn engine — pauses on permission cards.
+   * Approval policy: Build auto-approves file edits (commands still ask);
+   * Auto approves everything; "Always for this session" approves the rest.
+   */
   const advance = useCallback(() => {
     const steps = queue.current;
     const i = qi.current;
@@ -469,9 +490,12 @@ export function Session({
     qi.current = i + 1;
     let ev = step.event;
 
-    // permission gate: AUTO mode or "always" auto-resolves
     if (ev.type === 'perm') {
-      if (modeRef.current === 'auto' || alwaysRef.current) {
+      const autoApproved =
+        modeRef.current === 'auto' ||
+        alwaysRef.current ||
+        (modeRef.current === 'build' && ev.kind === 'edit');
+      if (autoApproved) {
         ev = { ...ev, state: 'auto' } as PermEvent;
         setEvents((p) => [...p, ev]);
       } else {
@@ -543,7 +567,7 @@ export function Session({
       if (verdict === 'rejected') {
         queue.current = [];
         setBusy(false);
-        notice('Edit rejected — the agent noted the objection and stopped');
+        notice('Rejected — the agent noted the objection and stopped');
         return;
       }
       timers.current.push(setTimeout(advance, 300));
@@ -635,7 +659,7 @@ export function Session({
       if (ch === 'a') {
         setOverlay('none');
         notice('Plan approved — executing');
-        setMode('normal');
+        setMode('build');
         runTurn('(Execute the approved plan)');
       } else if (ch === 'c') {
         setOverlay('none');
@@ -754,13 +778,22 @@ export function Session({
       return;
     }
     if (ch && !key.ctrl && !key.meta) {
+      // Long or multi-line pastes collapse into a chip instead of flooding
+      // the input line. The full text would be kept in a buffer for submit.
+      if (ch.includes('\n') || ch.includes('\r') || ch.length > 120) {
+        pasteCount.current += 1;
+        const lines = ch.split(/\r\n|\r|\n/).length;
+        setInput((v) => v + `[Pasted text #${pasteCount.current} +${lines} lines]`);
+        setPaletteIx(0);
+        return;
+      }
       setInput((v) => v + ch);
       setPaletteIx(0);
     }
   });
 
-  // transcript viewport: newest at bottom, manual scroll offset in items.
-  // overlays and the palette take rows away from the transcript so the
+  // ── layout ─────────────────────────────────────────────────────────────
+  // Overlays and the palette take rows away from the transcript so the
   // full frame never exceeds the terminal height (Ink would interleave).
   const overlayH =
     overlay === 'plan'
@@ -776,8 +809,9 @@ export function Session({
   const headerH = 1;
   const inputH = 4;
   const bodyH = Math.max(4, rows - headerH - inputH - overlayH - paletteH);
+  const sidebarW = Math.min(42, Math.max(30, Math.floor(columns * 0.26)));
   const showSidebar = sidebar && columns >= 100;
-  const mainW = showSidebar ? columns - 36 : columns - 2;
+  const mainW = showSidebar ? columns - sidebarW - 2 : columns - 2;
 
   const estimate = (e: Event): number => {
     if (e.type === 'tool') {
@@ -795,8 +829,11 @@ export function Session({
       if (e.tool === 'mcp') h += 4;
       return h;
     }
-    if (e.type === 'perm') return e.state === 'ask' ? 11 : 4;
-    if (e.type === 'assistant') return Math.ceil(e.text.length / 76) + 2;
+    if (e.type === 'perm') {
+      if (e.state !== 'ask') return 2;
+      return 8 + (e.diff ? Math.min(8, e.diff.lines.length) + 1 : 0) + (e.detail ? 1 : 0);
+    }
+    if (e.type === 'assistant') return Math.ceil(e.text.length / 80) + 2;
     return 2;
   };
   const visible: Event[] = [];
@@ -845,17 +882,23 @@ export function Session({
           )}
           <Box flexGrow={1} />
           {visible.map((e) => (
-            <EventView key={e.id} ev={e} expanded={expanded} isLast={e.id === lastId} />
+            <EventView
+              key={e.id}
+              ev={e}
+              expanded={expanded}
+              isLast={e.id === lastId}
+              width={mainW}
+            />
           ))}
           {scroll > 0 && <Text color={t.yellow}>▼ {scroll} newer — PgDn</Text>}
         </Box>
-        {showSidebar && <Sidebar height={bodyH} tokens={tokens} />}
+        {showSidebar && <Sidebar width={sidebarW} height={bodyH} tokens={tokens} />}
       </Box>
 
       {/* palette + overlays float above input */}
       {showPalette && (
         <Box paddingX={1}>
-          <Palette query={input} index={paletteIx} />
+          <Palette query={input} index={paletteIx} width={Math.min(columns - 4, 72)} />
         </Box>
       )}
       {overlay === 'plan' && (
@@ -870,12 +913,12 @@ export function Session({
       )}
       {overlay === 'model' && (
         <Box width={columns} justifyContent="center" paddingX={1}>
-          <ModelOverlay row={modelRow} effortIx={effortIx} currentIx={modelIx} />
+          <ModelOverlay row={modelRow} effortIx={effortIx} currentIx={modelIx} width={columns} />
         </Box>
       )}
       {overlay === 'theme' && (
         <Box width={columns} justifyContent="center" paddingX={1}>
-          <ThemeOverlay row={themeRow} />
+          <ThemeOverlay row={themeRow} width={columns} />
         </Box>
       )}
 
