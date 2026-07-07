@@ -5,6 +5,7 @@ import { TextBuffer } from '../text_buffer';
 import { maskedPlaceholder } from '../string';
 import { useUnifiedInput, KeyChecks } from '../input/unified';
 import { computeScrollWindow } from '../scroll_window';
+import { colors } from '../colors';
 
 interface MultilineTextInputProps {
   value: string;
@@ -136,18 +137,23 @@ export const MultilineTextInput: React.FC<MultilineTextInputProps> = ({
   const termCols = stdout?.columns ?? 80;
   const maxRowBudget = maxVisibleLines ?? Math.max(3, Math.floor(termRows * 0.4));
 
+  // Cap the panel so it doesn't stretch edge-to-edge on ultrawide terminals.
+  const boxWidth = Math.min(termCols, 120);
+  // Inner text width: border (2) + paddingX (2) columns of chrome.
+  const innerCols = Math.max(10, boxWidth - 4);
+
   const { visibleItems, windowStart, showScrollUp, showScrollDown } = computeScrollWindow(
     lines,
     cursor.line,
     maxRowBudget,
-    (line) => Math.max(1, Math.ceil(((stringWidth(line) || 1) + promptPrefix.length) / termCols)),
+    (line) => Math.max(1, Math.ceil(((stringWidth(line) || 1) + promptPrefix.length) / innerCols)),
   );
 
   const renderInputWithCursor = () => {
     if (lines.length === 1 && lines[0] === '') {
       return (
         <>
-          <Text>█ </Text>
+          <Text color={colors.accent}>█ </Text>
           <Text dimColor>{placeholder}</Text>
         </>
       );
@@ -178,32 +184,17 @@ export const MultilineTextInput: React.FC<MultilineTextInputProps> = ({
     );
   };
 
-  const titleLabel = title ? ` ${title} ` : '';
-  const rightMargin = title ? 2 : 0;
-  const topBorderDashes = '─'.repeat(Math.max(0, termCols - stringWidth(titleLabel) - rightMargin));
-
   return (
-    <Box flexDirection="column">
-      <Box>
-        <Text color={borderColor}>{topBorderDashes}</Text>
-        {title && (
-          <Text color={borderColor} inverse>
-            {titleLabel}
-          </Text>
-        )}
-        {title && <Text color={borderColor}>{'─'.repeat(rightMargin)}</Text>}
-      </Box>
-      <Box
-        borderLeft={false}
-        borderRight={false}
-        borderTop={false}
-        borderStyle="single"
-        borderColor={borderColor}
-        flexDirection="column"
-      >
+    <Box flexDirection="column" width={boxWidth}>
+      {title && (
+        <Box paddingLeft={2}>
+          <Text dimColor>✦ {title}</Text>
+        </Box>
+      )}
+      <Box borderStyle="round" borderColor={borderColor} paddingX={1} flexDirection="column">
         {showScrollUp && <Text dimColor>{'▲'}</Text>}
         <Box>
-          <Text>{promptPrefix}</Text>
+          <Text color={colors.accent}>{promptPrefix}</Text>
           {renderInputWithCursor()}
         </Box>
         {showScrollDown && <Text dimColor>{'▼'}</Text>}

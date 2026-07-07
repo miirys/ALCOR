@@ -24,11 +24,12 @@ export const AssistantMessage: React.FC<AssistantMessageProps> = ({
   // During streaming, cap visible lines to available terminal height so the live section
   // stays fixed-size and Ink's erase+redraw cycle doesn't cause visible flickering.
   const maxLines = !message.isComplete && rows ? Math.max(5, rows - CHROME_ROWS) : undefined;
-  // -2 reserves two columns for the ● indicator + space so wrapped lines don't overflow
+  // -2 reserves two columns for the ● indicator + space so wrapped lines don't
+  // overflow; the cap keeps prose readable on ultrawide terminals.
   return (
     <Markdown
       markdown={message.content}
-      availableWidth={Math.max(10, columns - 2)}
+      availableWidth={Math.max(10, Math.min(columns, 118) - 2)}
       prefix={DIM_INDICATOR}
       maxLines={maxLines}
     />

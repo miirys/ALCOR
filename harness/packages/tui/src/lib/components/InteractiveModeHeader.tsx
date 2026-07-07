@@ -28,7 +28,7 @@ const UserStatus: React.FC<{ username?: string; credentialSource?: string }> = (
   credentialSource,
 }) => (
   <Text>
-    <Text bold>User: </Text>
+    <Text dimColor>User </Text>
     {username || '...'}
     {username && credentialSource && <Text color="gray"> ({credentialSource})</Text>}
   </Text>
@@ -40,7 +40,7 @@ const DuoAccessStatus: React.FC<{ accessStatus?: AgenticChatAccessStatus }> = ({
   if (!accessStatus || accessStatus.status === 'checking') {
     return (
       <Text>
-        <Text bold>GitLab Duo access: ...</Text>
+        <Text dimColor>Duo access </Text>...
       </Text>
     );
   }
@@ -48,7 +48,7 @@ const DuoAccessStatus: React.FC<{ accessStatus?: AgenticChatAccessStatus }> = ({
   if (accessStatus.status === 'available') {
     return (
       <Text>
-        <Text bold>GitLab Duo access: </Text>
+        <Text dimColor>Duo access </Text>
         <Text color="green">✓ Available</Text>
       </Text>
     );
@@ -58,7 +58,7 @@ const DuoAccessStatus: React.FC<{ accessStatus?: AgenticChatAccessStatus }> = ({
   return (
     <Box flexDirection="column">
       <Text>
-        <Text bold>GitLab Duo access: </Text>
+        <Text dimColor>Duo access </Text>
         <Text color="red">✗ Unavailable</Text>
       </Text>
       {accessStatus.reason && (
@@ -77,14 +77,22 @@ const ProjectStatus: React.FC<{ gitlabRemoteInfo: GitLabRemoteInfo }> = ({ gitla
         gitlabRemoteInfo.gitlabPath,
         `https://${gitlabRemoteInfo.gitlabHost}`,
       );
-      const markdown = `**Project:** [${gitlabRemoteUrl.toString()}](${gitlabRemoteUrl.toString()})`;
-      return <Markdown markdown={markdown} />;
+      return (
+        <Text>
+          <Text dimColor>Project </Text>
+          <Markdown markdown={`[${gitlabRemoteUrl.toString()}](${gitlabRemoteUrl.toString()})`} />
+        </Text>
+      );
     }
     case 'error': {
-      return <Text color="red">{`${gitlabRemoteInfo.errorMessage}`}</Text>;
+      return <Text dimColor>{`${gitlabRemoteInfo.errorMessage}`}</Text>;
     }
     default:
-      return <Markdown markdown="**Project:** ..." />;
+      return (
+        <Text>
+          <Text dimColor>Project </Text>...
+        </Text>
+      );
   }
 };
 
@@ -110,7 +118,7 @@ export const InteractiveModeHeader: React.FC<InteractiveModeHeaderProps> = ({
         <ProjectStatus gitlabRemoteInfo={gitlabRemoteInfo} />
         {cwd && (
           <Text>
-            <Text bold>cwd: </Text>
+            <Text dimColor>cwd </Text>
             <Text>{cwd}</Text>
           </Text>
         )}

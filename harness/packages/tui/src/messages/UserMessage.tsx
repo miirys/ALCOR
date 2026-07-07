@@ -14,7 +14,7 @@ export const UserMessage: React.FC<UserMessageProps> = ({ message, columns = 80 
   const bg = getUserMessageBg(theme);
 
   return (
-    <Box backgroundColor={bg} width={columns}>
+    <Box backgroundColor={bg} width={Math.min(columns, 120)}>
       <Text color={getAgentColor(message.agentMode)} bold>
         {getAgentPrefix(message.agentMode)}
       </Text>

@@ -39,6 +39,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ children, columns }) => {
             borderTop={false}
             borderBottom={false}
             borderStyle="round"
+            borderColor="#44444c"
             flexShrink={0}
           >
             <Text> </Text>

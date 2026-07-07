@@ -1,8 +1,10 @@
 import React from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useStdout } from 'ink';
 import { colors } from '../colors';
 
 export const WelcomeMessage: React.FC = () => {
+  const { stdout } = useStdout();
+  const columns = stdout?.columns ?? 80;
   return (
     <Box
       borderStyle="round"
@@ -10,7 +12,7 @@ export const WelcomeMessage: React.FC = () => {
       paddingX={1}
       marginBottom={1}
       flexDirection="column"
-      width="100%"
+      width={Math.min(columns, 120)}
     >
       <Text bold color={colors.accent}>
         ✦ ALCOR

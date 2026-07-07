@@ -810,8 +810,9 @@ describe('MultilineTextInput', () => {
         });
         const output = lastFrame();
 
-        // The long line (2 rows with prefix) fills the budget — second line should be hidden
-        expect(output).toContain(longLine);
+        // The panel's border + padding chrome wraps the 99-char line across two
+        // visual rows, filling the budget — the second line should be hidden.
+        expect(output).toContain('x'.repeat(80));
         expect(output).not.toContain('second line');
         expect(output).toContain('▼');
       });
