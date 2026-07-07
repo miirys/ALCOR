@@ -67,7 +67,7 @@ describe('SettingsInput', () => {
 
     it('renders the arrow cursor on the first item by default', () => {
       const { lastFrame } = renderSettings(createInputState(), callbacks);
-      expect(lastFrame()).toContain('→');
+      expect(lastFrame()).toContain('▌');
     });
   });
 

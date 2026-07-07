@@ -11,7 +11,7 @@ export const EditFileTool: React.FC<ToolComponentProps<EditFileInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `← Edit ${input.filepath}`;
+  const label = `± Edit · ${input.filepath}`;
 
   const patch = React.useMemo(() => {
     if (input.diff.old.content === input.diff.new.content) {

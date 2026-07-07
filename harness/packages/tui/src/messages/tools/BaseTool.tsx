@@ -22,16 +22,17 @@ interface BaseToolProps {
   columns?: number;
 }
 
+// Leading state glyph, ALCOR-style: `│ ✓ ± Edit · path`.
 const StateIndicator: React.FC<{ state: ToolState }> = ({ state }) => {
   switch (state.type) {
     case 'loading':
-      return <Text>...</Text>;
+      return <Text color="#8a8a94">◐ </Text>;
     case 'error':
-      return <Text color="red"> ✗</Text>;
+      return <Text color="red">✗ </Text>;
     case 'approval_request':
-      return <Text>?</Text>;
+      return <Text color="yellow">? </Text>;
     default:
-      return null;
+      return <Text color="green">✓ </Text>;
   }
 };
 
@@ -56,16 +57,12 @@ export const BaseTool: React.FC<BaseToolProps> = ({
       width={columns}
     >
       <Box width={contentWidth}>
+        {/* Reserve 2 cols for the leading state glyph so the label markdown
+            doesn't push it off the right edge on narrow terminals. */}
+        <StateIndicator state={state} />
         <Text dimColor>
-          {/*
-            Reserve 2 cols inside the label row for the StateIndicator (`...`,
-            `?`, ` ✗`) that sits next to the markdown in the same flex row. If
-            we let the markdown take the full `contentWidth`, the indicator
-            gets pushed off the right edge on narrow terminals.
-          */}
           <Markdown markdown={label} availableWidth={Math.max(1, contentWidth - 2)} />
         </Text>
-        <StateIndicator state={state} />
       </Box>
 
       {children}

@@ -16,7 +16,7 @@ export const ReadFileTool: React.FC<ToolComponentProps<ReadFileInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `→ Read ${input.filepath}${formatRangeLabel(input.offset, input.limit)}`;
+  const label = `⊙ Read · ${input.filepath}${formatRangeLabel(input.offset, input.limit)}`;
 
   return <BaseTool label={label} state={state} expanded={expanded} columns={columns} />;
 };

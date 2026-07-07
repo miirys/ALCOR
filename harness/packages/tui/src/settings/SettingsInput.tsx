@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Text } from 'ink';
 import type { SettingsInputState, SettingsItem, SettingsOption } from '../types';
 import { useKeyHandler } from '../lib/key_handler';
+import { colors } from '../lib/colors';
 
 export const settingsFooterHint = (): string | null =>
   '↑/↓ to navigate • Enter/Space to change • Esc to close';
@@ -23,9 +24,11 @@ const nextOptionValue = (options: SettingsOption[], current: string | undefined)
 const itemStatus = (item: SettingsItem): { text: string; color: string } => {
   if (item.options) {
     const selected = item.options.find((option) => option.value === item.value);
-    return { text: selected?.label ?? item.value, color: 'cyan' };
+    return { text: selected?.label ?? item.value, color: colors.cyan };
   }
-  return item.enabled ? { text: 'on', color: 'green' } : { text: 'off', color: 'red' };
+  return item.enabled
+    ? { text: '◉ on', color: colors.green }
+    : { text: '○ off', color: colors.faint };
 };
 
 interface SettingsInputProps {
@@ -72,10 +75,16 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({ input, callbacks }
 
   return (
     <Box flexDirection="column">
-      <Box borderStyle="round" borderColor="cyan" paddingX={2} paddingY={1} flexDirection="column">
+      <Box
+        borderStyle="round"
+        borderColor={colors.borderActive}
+        paddingX={2}
+        paddingY={1}
+        flexDirection="column"
+      >
         <Box marginBottom={1}>
-          <Text bold color="cyan">
-            Settings
+          <Text bold color={colors.accent}>
+            ◈ Settings
           </Text>
         </Box>
 
@@ -85,9 +94,13 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({ input, callbacks }
             const status = itemStatus(item);
             return (
               <Box key={item.key} gap={1}>
-                <Text color={isSelected ? 'white' : 'gray'}>{isSelected ? '→' : ' '}</Text>
+                <Text color={isSelected ? colors.accent : colors.faint}>
+                  {isSelected ? '▌' : ' '}
+                </Text>
                 <Box width={30}>
-                  <Text bold={isSelected}>{item.label}</Text>
+                  <Text bold={isSelected} color={isSelected ? colors.bright : colors.fg}>
+                    {item.label}
+                  </Text>
                 </Box>
                 <Text color={status.color}>{status.text}</Text>
               </Box>

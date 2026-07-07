@@ -9,7 +9,7 @@ export const ListDirTool: React.FC<ToolComponentProps<ListDirInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `→ List ${input.directory}`;
+  const label = `⊟ List · ${input.directory}`;
 
   return <BaseTool label={label} state={state} expanded={expanded} columns={columns} />;
 };

@@ -12,7 +12,7 @@ export const GrepTool: React.FC<ToolComponentProps<GrepInput>> = ({
 }) => {
   const { pattern, directory, caseInsensitive } = input;
   const caseInsensitiveSuffix = caseInsensitive ? ' (case insensitive)' : '';
-  const label = `\\* Find ${pattern} in ${directory || 'files'}${caseInsensitiveSuffix}`;
+  const label = `⌕ Search · ${pattern} in ${directory || 'files'}${caseInsensitiveSuffix}`;
 
   const output = state.type === 'success' ? state.output.trim() : null;
   const firstLine = output ? (output.split('\n').at(0) ?? '') : '';

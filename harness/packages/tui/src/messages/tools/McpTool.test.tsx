@@ -175,7 +175,7 @@ describe('McpTool', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('...');
+      expect(lastFrame()).toContain('◐');
     });
   });
 

@@ -4,6 +4,7 @@ import type { HelpDialogInputState } from './types';
 import { Link } from './lib/components/Link';
 import { useKeyHandler } from './lib/key_handler';
 import { isGlab } from './lib/environment_context';
+import { colors } from './lib/colors';
 
 export interface HelpDialogCallbacks {
   onCloseHelp: () => void;
@@ -39,10 +40,16 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
 
   return (
     <Box flexDirection="column">
-      <Box borderStyle="round" borderColor="cyan" paddingX={2} paddingY={1} flexDirection="column">
+      <Box
+        borderStyle="round"
+        borderColor={colors.borderActive}
+        paddingX={2}
+        paddingY={1}
+        flexDirection="column"
+      >
         <Box marginBottom={1}>
-          <Text bold color="cyan">
-            ALCOR{isGlab() ? ' (glab)' : ''}
+          <Text bold color={colors.accent}>
+            ✦ ALCOR{isGlab() ? ' (glab)' : ''}
           </Text>
         </Box>
 
@@ -54,7 +61,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
         </Box>
 
         <Box marginBottom={1}>
-          <Text bold color="yellow">
+          <Text color={colors.accentDim} bold>
             Shortcuts
           </Text>
         </Box>
@@ -63,7 +70,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
           {shortcuts.map((shortcut) => (
             <Box key={shortcut.action}>
               <Box width={16}>
-                <Text bold color="green">
+                <Text bold color={colors.accent}>
                   {shortcut.action}
                 </Text>
               </Box>
@@ -73,7 +80,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
         </Box>
 
         <Box marginBottom={1}>
-          <Text bold color="yellow">
+          <Text color={colors.accentDim} bold>
             Slash Commands
           </Text>
         </Box>
@@ -83,7 +90,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
             input.slashCommands.map((command) => (
               <Box key={command.name}>
                 <Box width={16}>
-                  <Text bold color="green">
+                  <Text bold color={colors.accent}>
                     {command.name}
                   </Text>
                 </Box>
@@ -94,7 +101,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
             <>
               <Box>
                 <Box width={16}>
-                  <Text bold color="green">
+                  <Text bold color={colors.accent}>
                     /help
                   </Text>
                 </Box>
@@ -102,7 +109,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ input, callbacks }) => {
               </Box>
               <Box>
                 <Box width={16}>
-                  <Text bold color="green">
+                  <Text bold color={colors.accent}>
                     /new
                   </Text>
                 </Box>

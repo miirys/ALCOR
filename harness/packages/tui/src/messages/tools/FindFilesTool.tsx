@@ -10,7 +10,7 @@ export const FindFilesTool: React.FC<ToolComponentProps<FindFilesInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `\\* Find files ${input.pattern}`;
+  const label = `⌕ Find files · ${input.pattern}`;
 
   const output = state.type === 'success' ? state.output.trim() : null;
   const outputLines = output ? output.split('\n').filter(Boolean) : [];

@@ -18,7 +18,7 @@ describe('GrepTool', () => {
         <GrepTool input={createInput('TODO')} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('* Find TODO in files');
+      expect(lastFrame()).toContain('⌕ Search · TODO in files');
     });
 
     it('displays directory in the label when provided', () => {
@@ -27,7 +27,7 @@ describe('GrepTool', () => {
         <GrepTool input={input} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('* Find TODO in src/');
+      expect(lastFrame()).toContain('⌕ Search · TODO in src/');
     });
 
     it('displays case insensitive suffix when caseInsensitive is true', () => {
@@ -36,7 +36,7 @@ describe('GrepTool', () => {
         <GrepTool input={input} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('* Find TODO in files (case insensitive)');
+      expect(lastFrame()).toContain('⌕ Search · TODO in files (case insensitive)');
     });
   });
 

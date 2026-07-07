@@ -28,7 +28,7 @@ describe('RunCommandTool', () => {
           />,
         );
 
-        expect(lastFrame()).toContain('Run command');
+        expect(lastFrame()).toContain('❯_ Shell');
       });
 
       it('displays the command', () => {

@@ -44,17 +44,17 @@ describe('Tool', () => {
           filepath: 'new.ts',
           content: 'content',
         },
-        expectedContains: ['Create', 'new.ts'],
+        expectedContains: ['✎ Write', 'new.ts'],
       },
       {
         name: 'run_command to RunCommandTool',
         input: { tool: 'run_command', command: 'npm test' },
-        expectedContains: ['Run command', 'npm test'],
+        expectedContains: ['❯_ Shell', 'npm test'],
       },
       {
         name: 'shell_command to RunCommandTool',
         input: { tool: 'shell_command', command: 'echo hi' },
-        expectedContains: ['Run command', 'echo hi'],
+        expectedContains: ['❯_ Shell', 'echo hi'],
       },
       {
         name: 'list_dir to ListDirTool',
@@ -69,12 +69,12 @@ describe('Tool', () => {
       {
         name: 'grep to GrepTool',
         input: { tool: 'grep', pattern: 'TODO' },
-        expectedContains: ['Find TODO in files'],
+        expectedContains: ['⌕ Search · TODO in files'],
       },
       {
         name: 'mkdir to MkdirTool',
         input: { tool: 'mkdir', path: 'new-dir' },
-        expectedContains: ['Create directory', 'new-dir'],
+        expectedContains: ['⊞ Mkdir', 'new-dir'],
       },
       {
         name: 'run_git_command to GitCommandTool',

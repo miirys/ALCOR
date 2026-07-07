@@ -90,7 +90,7 @@ describe('App', () => {
       const { lastFrame } = renderWithContext(testState, callbacks);
       const output = lastFrame();
 
-      expect(output).toContain('User johndoe');
+      expect(output).toContain('@johndoe');
     });
   });
 
@@ -110,7 +110,7 @@ describe('App', () => {
       const { lastFrame } = renderWithContext(testState, callbacks);
       const output = lastFrame();
 
-      expect(output).toContain('gitlab.com/mygroup/myproject');
+      expect(output).toContain('mygroup/myproject');
     });
 
     it('should render error status in red', () => {
@@ -187,7 +187,7 @@ describe('App', () => {
 
       const { lastFrame } = renderWithContext(testState, callbacks);
 
-      expect(lastFrame()).toContain('User testuser');
+      expect(lastFrame()).toContain('@testuser');
     });
 
     it('should transition from loading to static state', () => {
@@ -211,7 +211,7 @@ describe('App', () => {
       rerender(<App state={testStateWithUser} callbacks={callbacks} />);
 
       // Should now show username
-      expect(lastFrame()).toContain('User johndoe');
+      expect(lastFrame()).toContain('@johndoe');
     });
   });
 
@@ -232,9 +232,9 @@ describe('App', () => {
       const { lastFrame } = renderWithContext(testState, callbacks);
       const output = lastFrame();
 
-      expect(output).toContain('User developer');
-      expect(output).toContain('/workspace/project');
-      expect(output).toContain('gitlab.example.com/team/app');
+      expect(output).toContain('@developer');
+      expect(output).toContain('team/app');
+      expect(output).toContain('v1.0.0-test');
       expect(output).toContain('1.0.0-test');
     });
 
@@ -250,7 +250,7 @@ describe('App', () => {
       const { lastFrame } = renderWithContext(testState, callbacks);
 
       // Should render without errors even with minimal state
-      expect(lastFrame()).toContain('User user');
+      expect(lastFrame()).toContain('@user');
     });
   });
 });

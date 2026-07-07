@@ -22,7 +22,7 @@ describe('ListDirTool', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('List /src/components');
+      expect(lastFrame()).toContain('⊟ List · /src/components');
     });
   });
 
@@ -32,7 +32,7 @@ describe('ListDirTool', () => {
         <ListDirTool input={createInput('/src')} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('...');
+      expect(lastFrame()).toContain('◐');
     });
   });
 
@@ -42,7 +42,7 @@ describe('ListDirTool', () => {
         <ListDirTool input={createInput('/src')} state={successState} expanded={false} />,
       );
 
-      expect(lastFrame()).not.toContain('...');
+      expect(lastFrame()).not.toContain('◐');
       expect(lastFrame()).not.toContain('✗');
     });
   });

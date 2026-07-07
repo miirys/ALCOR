@@ -34,7 +34,7 @@ const ModelItem: React.FC<ModelItemProps> = ({ item, isSelected, currentModel })
       borderTop={false}
       borderBottom={false}
       borderStyle="bold"
-      borderColor={isSelected ? 'white' : 'blackBright'}
+      borderColor={isSelected ? '#8a8a94' : '#2a2a32'}
       paddingLeft={1}
       gap={1}
     >

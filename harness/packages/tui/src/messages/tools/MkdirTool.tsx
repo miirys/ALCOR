@@ -9,7 +9,7 @@ export const MkdirTool: React.FC<ToolComponentProps<MkdirInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `← Create directory ${input.path}`;
+  const label = `⊞ Mkdir · ${input.path}`;
 
   return <BaseTool label={label} state={state} expanded={expanded} columns={columns} />;
 };

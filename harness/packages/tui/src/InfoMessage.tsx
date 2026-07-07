@@ -8,8 +8,8 @@ interface InfoMessageProps {
 export const InfoMessage: React.FC<InfoMessageProps> = ({ message }) => {
   return (
     <Box flexDirection="column" marginY={0}>
-      <Box paddingLeft={2}>
-        <Text color="green">{message}</Text>
+      <Box>
+        <Text dimColor>◇ {message}</Text>
       </Box>
       <Newline />
     </Box>

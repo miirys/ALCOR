@@ -22,7 +22,7 @@ describe('MkdirTool', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('Create directory');
+      expect(lastFrame()).toContain('⊞ Mkdir');
       expect(lastFrame()).toContain('src/new-directory');
     });
   });
@@ -37,7 +37,7 @@ describe('MkdirTool', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('...');
+      expect(lastFrame()).toContain('◐');
     });
   });
 
@@ -51,7 +51,7 @@ describe('MkdirTool', () => {
         />,
       );
 
-      expect(lastFrame()).not.toContain('...');
+      expect(lastFrame()).not.toContain('◐');
     });
   });
 

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box, Static, Text, useStdout } from 'ink';
+import React, { useContext, useEffect } from 'react';
+import { Box, Text, useStdout } from 'ink';
 import { InputComponent } from './MessageInput';
 import type {
   AppState,
@@ -11,26 +11,22 @@ import type {
   RetryStatus,
 } from './types';
 import type { DropdownProvider } from './lib/dropdown_provider';
-import { DEFAULT_TERMINAL_WIDTH, CLI_INPUT_TYPES, ONBOARDING_CARD_ENABLED } from './constants';
+import { DEFAULT_TERMINAL_WIDTH, CLI_INPUT_TYPES } from './constants';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useInputAction, usePublishInputContext } from './lib/keymap';
-import { useStaticReset } from './lib/hooks/use_static_reset';
-import { computeStaticElements } from './lib/hooks/compute_static_elements';
 import { useCancelStream, CANCEL_HINT, type CancelState } from './lib/hooks/use_cancel_stream';
-import { InteractiveModeHeader } from './lib/components/InteractiveModeHeader';
 import { StatusBar } from './lib/components/StatusBar';
 import { McpStatusIndicator } from './lib/components/McpStatusIndicator';
-import { ContextUsageIndicator } from './lib/components/ContextUsageIndicator';
 import { RetryStatusIndicator } from './lib/components/RetryStatusIndicator';
 import { UpdateBanner } from './lib/components/UpdateBanner';
 import { DeprecationBanner, useDeprecationStatus } from './lib/components/DeprecationBanner';
-import { WelcomeMessage } from './lib/components/WelcomeMessage';
-import { OnboardingCard, onboardingCardVisibleForInput } from './lib/components/OnboardingCard';
+import { TopBar, Hero, SessionSidebar } from './lib/components/AlcorChrome';
 import { ChatMessage } from './ChatMessage';
 import { ControlsHint } from './lib/components/ControlsHint';
 import { useCommandComponentRegistry } from './lib/command_component_registry';
 import { resolveFooterHint } from './lib/footer_hint';
-import { getAgentColor, getAgentBorderColor, getAgentPrefix } from './lib/colors';
+import { getAgentColor, getAgentBorderColor, getAgentPrefix, colors } from './lib/colors';
+import { EnvironmentContext } from './lib/environment_context';
 
 const ESC = '\x1b';
 const BEL = '\x07';
@@ -62,9 +58,10 @@ const AgentModeIndicator: React.FC<AgentModeIndicatorProps> = ({
     <Box>
       <Text color={getAgentColor(selectedAgent)} bold>
         {getAgentPrefix(selectedAgent)}
-        {selectedAgent.toUpperCase()}{' '}
+        {selectedAgent.toUpperCase()}
       </Text>
-      <ControlsHint>{` (**tab** to switch)`}</ControlsHint>
+      <Text> </Text>
+      <ControlsHint>{`**Tab** Mode · **/** Commands · **Ctrl+O** Expand`}</ControlsHint>
     </Box>
   );
 };
@@ -111,7 +108,7 @@ const StatusBarLeft: React.FC<StatusBarLeftProps> = ({
     // instructions in their place. Plain Text + literal Unicode arrows are used
     // instead of ControlsHint/Markdown so dimColor applies uniformly — bold ANSI
     // codes emitted by the Markdown renderer would otherwise override the dim.
-    return <Text dimColor>Use ↑/↓ arrows to navigate • Enter to select • Ctrl+C to exit</Text>;
+    return <Text dimColor>↑↓ Navigate · Enter Select · Ctrl+C Exit</Text>;
   }
 
   if (footerHint) {
@@ -163,6 +160,43 @@ const QueuedPromptIndicator: React.FC<QueuedPromptIndicatorProps> = ({
   );
 };
 
+/**
+ * Rough row-height estimate for a chat element at the given width. Used to
+ * slice the transcript from the tail so the whole frame fits the terminal —
+ * ALCOR renders a session *screen*, not an append-only scroll log.
+ * Over-estimating is safe (fewer elements shown); under-estimating spills
+ * frames into scrollback.
+ */
+const estimateRows = (el: ChatElement, width: number): number => {
+  const wrap = (s: string, w: number): number =>
+    s.split('\n').reduce((acc, line) => acc + Math.max(1, Math.ceil((line.length || 1) / w)), 0);
+  if (el.type === 'message') {
+    if (el.role === 'assistant' && !el.content) return 0;
+    return wrap(el.content, Math.max(20, Math.min(width, 118) - 2)) + 1;
+  }
+  if (el.type === 'error') return 4;
+  if (el.type === 'info') return 3;
+  // Tool cards: label row + truncated body; diffs preview more lines.
+  const t = el.input.tool;
+  const body = t === 'edit_file' || t === 'create_file_with_contents' ? 13 : 7;
+  return body + 1;
+};
+
+/** Last N elements whose estimated heights fit the budget (always ≥ 1). */
+const sliceTail = (elements: ChatElement[], budget: number, width: number): ChatElement[] => {
+  const out: ChatElement[] = [];
+  let used = 0;
+  for (let i = elements.length - 1; i >= 0; i--) {
+    const h = estimateRows(elements[i], width);
+    if (out.length > 0 && used + h > budget) break;
+    out.unshift(elements[i]);
+    used += h;
+  }
+  return out;
+};
+
+const SIDEBAR_WIDTH = 34;
+
 interface ChatInterfaceProps {
   state: AppState;
   callbacks: AppCallbacks;
@@ -175,8 +209,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   dropdownProviders,
 }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const [inputEmpty, setInputEmpty] = React.useState(true);
+  const [, setInputEmpty] = React.useState(true);
   const commandRegistry = useCommandComponentRegistry();
+  const envInfo = useContext(EnvironmentContext);
 
   // Publish app-level facts into the central keymap context so the dispatcher
   // can arbitrate the conflict-prone keys deterministically.
@@ -201,53 +236,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   );
   const footerHint = resolveFooterHint(state.input, commandRegistry, dropdownOpen);
 
-  // Read columns here (outside <Static>) so the value is stable during live→static transitions.
-  // useStdout is unavailable inside <Static>, so components rendered there must receive
-  // columns as a prop rather than calling useStdout themselves.
   const { stdout } = useStdout();
   const columns = stdout?.columns ?? DEFAULT_TERMINAL_WIDTH;
   const rows = stdout?.rows ?? 24;
 
   const deprecationStatus = useDeprecationStatus();
-  const allDataInitialized = Boolean(
-    state.username &&
-      state.gitlabRemoteInfo.status !== 'not-checked' &&
-      state.updateCheckResult &&
-      deprecationStatus !== undefined,
-  );
 
-  const headerContent = (
-    <Box key="header" marginBottom={1}>
-      <InteractiveModeHeader
-        username={state.username}
-        credentialSource={state.credentialSource}
-        gitlabRemoteInfo={state.gitlabRemoteInfo}
-        cwd={state.cwd}
-        agenticChatAccess={state.agenticChatAccess}
-        columns={columns}
-      />
-    </Box>
-  );
-
-  const updateBannerContent = state.updateCheckResult?.type === 'needs-update' && (
-    <UpdateBanner
-      key="update-banner"
-      updateInfo={state.updateCheckResult.updateInfo}
-      columns={columns}
-    />
-  );
-  const deprecationBannerContent = deprecationStatus && deprecationStatus !== 'not-applicable' && (
-    <DeprecationBanner key="deprecation-banner" status={deprecationStatus} columns={columns} />
-  );
   const isEmpty = state.elements.length === 0;
   const isTextInput = state.input.inputType === CLI_INPUT_TYPES.TEXT;
-  // The onboarding card stays visible while the plain text prompt is active and,
-  // as a special case, while the MCP panel is open — MCP is one of the onboarding
-  // steps, so keeping the checklist in view reinforces that context. Every other
-  // slash-command panel/dialog (/help, /model, …) hides it. Feature-flagged off
-  // for now; when hidden it must not claim the input's ↑/↓ (see `onboardingActive`).
-  const showOnboarding =
-    isEmpty && ONBOARDING_CARD_ENABLED && onboardingCardVisibleForInput(state.input.inputType);
+  const isChoiceInput = state.input.inputType === CLI_INPUT_TYPES.CHOICE;
+  const dialogOpen = !isTextInput && !isChoiceInput;
+
+  const initializing =
+    !state.username ||
+    state.gitlabRemoteInfo.status === 'not-checked' ||
+    !state.agenticChatAccess ||
+    state.agenticChatAccess.status === 'checking';
 
   const firstUserMessage = state.elements.find(
     (el): el is Message => el.type === 'message' && el.role === 'user',
@@ -264,80 +268,63 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     return undefined;
   }, [sessionTitle]);
 
-  const staticNonce = useStaticReset(state.sessionId);
-  const { useStaticOptimization, frozenElements, liveElements } = computeStaticElements(
-    state.elements,
-    allDataInitialized,
-  );
+  // Frame budget: top bar (1) + blank (1) + input panel (3-4) + status (1) +
+  // loading/queued (2) ≈ 9 rows of chrome; dialogs claim extra vertical space.
+  const bodyBudget = Math.max(5, rows - 9 - (dialogOpen ? 12 : 0));
+  const showSidebar = !isEmpty && columns >= 130 && !dialogOpen;
+  const mainWidth = showSidebar ? columns - SIDEBAR_WIDTH - 1 : columns;
+  const visible = sliceTail(state.elements, bodyBudget, mainWidth);
 
-  // Each element owns its own spacing via ChatMessage — no margin logic needed here.
-  const renderElement = (element: ChatElement) => (
-    <ChatMessage
-      key={element.id}
-      element={element}
-      expanded={state.expanded}
-      columns={columns}
-      rows={rows}
-    />
+  const updateBannerContent = state.updateCheckResult?.type === 'needs-update' && (
+    <UpdateBanner updateInfo={state.updateCheckResult.updateInfo} columns={columns} />
+  );
+  const deprecationBannerContent = deprecationStatus && deprecationStatus !== 'not-applicable' && (
+    <DeprecationBanner status={deprecationStatus} columns={columns} />
   );
 
   return (
-    <Box flexDirection="column" height="100%">
-      {/* No bottom margin during tool approval — ChoiceInput sits directly below the tool
-          card with no gap, matching the visual weight of the options list. For all other
-          input types a blank row separates the chat content from the input box. */}
-      <Box
-        flexDirection="column"
-        flexGrow={1}
-        marginBottom={state.input.inputType === CLI_INPUT_TYPES.CHOICE ? 0 : 1}
-      >
-        {useStaticOptimization ? (
-          <>
-            {/* Use Static for header, update banner, and frozen elements. */}
-            {/* eslint-disable-next-line no-restricted-syntax */}
-            <Static
-              key={staticNonce}
-              items={[
-                headerContent,
-                ...(deprecationBannerContent ? [deprecationBannerContent] : []),
-                ...(updateBannerContent ? [updateBannerContent] : []),
-                ...frozenElements,
-              ]}
-            >
-              {(item) => {
-                if (React.isValidElement(item)) {
-                  return item;
-                }
-                return renderElement(item as ChatElement);
-              }}
-            </Static>
-            {isEmpty ? (
-              <>
-                {showOnboarding && (
-                  <OnboardingCard onRun={callbacks.onSubmit} active={inputEmpty && isTextInput} />
-                )}
-                <WelcomeMessage />
-              </>
-            ) : (
-              <Box flexDirection="column">{liveElements.map(renderElement)}</Box>
-            )}
-          </>
-        ) : (
-          <>
-            {headerContent}
-            {deprecationBannerContent}
-            {updateBannerContent}
-            {isEmpty ? (
-              <>
-                {showOnboarding && (
-                  <OnboardingCard onRun={callbacks.onSubmit} active={inputEmpty && isTextInput} />
-                )}
-                <WelcomeMessage />
-              </>
-            ) : (
-              state.elements.map(renderElement)
-            )}
-          </>
+    <Box flexDirection="column" width={columns}>
+      {isEmpty ? (
+        <Hero
+          version={envInfo.duoCliVersion}
+          username={state.username}
+          credentialSource={state.credentialSource}
+          agenticChatAccess={state.agenticChatAccess}
+          gitlabRemoteInfo={state.gitlabRemoteInfo}
+          cwd={state.cwd}
+          initializing={initializing}
+        />
+      ) : (
+        <TopBar
+          cwd={state.cwd}
+          gitlabRemoteInfo={state.gitlabRemoteInfo}
+          contextUsage={state.contextUsage}
+          columns={columns}
+        />
+      )}
+      {deprecationBannerContent}
+      {updateBannerContent}
+
+      <Box marginBottom={isChoiceInput ? 0 : 1} marginTop={isEmpty ? 0 : 1}>
+        <Box flexDirection="column" width={mainWidth} paddingX={1}>
+          {visible.map((element) => (
+            <ChatMessage
+              key={element.id}
+              element={element}
+              expanded={state.expanded}
+              columns={mainWidth - 2}
+              rows={rows}
+            />
+          ))}
+        </Box>
+        {showSidebar && (
+          <SessionSidebar
+            elements={state.elements}
+            contextUsage={state.contextUsage}
+            mcpServers={state.mcpServers}
+            width={SIDEBAR_WIDTH}
+            height={Math.max(8, bodyBudget)}
+          />
         )}
       </Box>
 
@@ -357,7 +344,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         title={firstUserMessage ? sessionTitle : undefined}
         borderColor={getAgentBorderColor(state.selectedAgent)}
         promptPrefix={getAgentPrefix(state.selectedAgent)}
-        onboardingActive={showOnboarding}
+        onboardingActive={false}
       />
       <StatusBar>
         <Box gap={2}>
@@ -374,17 +361,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           />
         </Box>
         <Box gap={2}>
-          <ContextUsageIndicator contextUsage={state.contextUsage} />
           <McpStatusIndicator mcpServers={state.mcpServers} />
-          {/* Model stays last so it's anchored to the corner and isn't pushed
-              when the context-usage indicator appears. The extra left margin
-              (on top of the group gap) sets it visually apart from the
-              context/MCP status so the two don't blend into one grouping. */}
-          {state.selectedModel && (
-            <Box marginLeft={2}>
-              <Text dimColor>{state.selectedModel}</Text>
-            </Box>
-          )}
+          <Text dimColor>
+            {state.selectedModel ? `${state.selectedModel} · ` : ''}
+            <Text color={colors.faint}>ALCOR α</Text>
+          </Text>
         </Box>
       </StatusBar>
     </Box>

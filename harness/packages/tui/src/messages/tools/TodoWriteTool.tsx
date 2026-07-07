@@ -25,7 +25,7 @@ export const TodoWriteTool: React.FC<ToolComponentProps<TodoWriteInput>> = ({
   expanded,
 }) => {
   return (
-    <BaseTool label="Todos" state={state} expanded={expanded}>
+    <BaseTool label="☰ Todos · Plan of record" state={state} expanded={expanded}>
       <Box flexDirection="column" paddingLeft={2}>
         {input.todos.map((todo, i) => (
           <Box key={`${todo.status}-${i}`} gap={1}>

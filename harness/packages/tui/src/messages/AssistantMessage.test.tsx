@@ -16,7 +16,7 @@ describe('AssistantMessage', () => {
     const { lastFrame } = render(<AssistantMessage message={message} />);
     const output = lastFrame();
 
-    expect(output).toContain('●');
+    expect(output).toContain('◆');
     expect(output).toContain('Hi there!');
   });
 

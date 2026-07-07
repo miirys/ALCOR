@@ -14,7 +14,7 @@ export const RunCommandTool: React.FC<Props> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `Run command`;
+  const label = `❯_ Shell`;
   const commandDisplay = `$ \`${input.command}\``;
 
   const output = state.type === 'success' ? state.output.trim() : null;

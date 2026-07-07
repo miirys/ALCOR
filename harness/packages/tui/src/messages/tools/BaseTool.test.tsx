@@ -23,7 +23,7 @@ describe('BaseTool', () => {
 
       const { lastFrame } = render(<BaseTool label="Loading" state={state} expanded={false} />);
 
-      expect(lastFrame()).toContain('...');
+      expect(lastFrame()).toContain('◐');
     });
   });
 

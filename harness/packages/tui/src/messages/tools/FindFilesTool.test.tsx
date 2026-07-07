@@ -18,7 +18,7 @@ describe('FindFilesTool', () => {
         <FindFilesTool input={createInput('*.tsx')} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('Find files *.tsx');
+      expect(lastFrame()).toContain('⌕ Find files · *.tsx');
     });
   });
 

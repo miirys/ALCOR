@@ -380,7 +380,7 @@ describe('ChatInterface', () => {
         const output = lastFrame();
 
         expect(output).toContain('BUILD');
-        expect(output).toContain('tab to switch');
+        expect(output).toContain('Tab');
       });
     });
 
@@ -393,7 +393,7 @@ describe('ChatInterface', () => {
 
         const { lastFrame } = renderChatInterface(state, callbacks);
 
-        expect(lastFrame()).not.toContain('tab to switch');
+        expect(lastFrame()).not.toContain('Tab');
       });
     });
   });

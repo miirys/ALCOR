@@ -60,7 +60,7 @@ describe('ReadFileTool', () => {
         <ReadFileTool input={createInput('src/test.ts')} state={loadingState} expanded={false} />,
       );
 
-      expect(lastFrame()).toContain('...');
+      expect(lastFrame()).toContain('◐');
     });
   });
 
@@ -70,7 +70,7 @@ describe('ReadFileTool', () => {
         <ReadFileTool input={createInput('src/test.ts')} state={successState} expanded={false} />,
       );
 
-      expect(lastFrame()).not.toContain('...');
+      expect(lastFrame()).not.toContain('◐');
     });
   });
 

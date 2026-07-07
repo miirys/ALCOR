@@ -11,7 +11,7 @@ export const CreateFileTool: React.FC<ToolComponentProps<CreateFileInput>> = ({
   expanded,
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
-  const label = `← Create ${input.filepath}`;
+  const label = `✎ Write · ${input.filepath}`;
   const contentTruncatable = isTruncatable(input.content);
   const displayContent = expanded ? input.content : truncate(input.content);
   const contentWidth = toolContentWidth(columns);

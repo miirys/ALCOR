@@ -1,4 +1,5 @@
 import { Box, Text } from 'ink';
+import { colors } from '../colors';
 
 export interface DropdownItem {
   id: string;
@@ -31,8 +32,13 @@ export function DropdownItemComponent({ item, isSelected }: DropdownItemProps) {
 
   return (
     <Box>
+      <Text color={isSelected ? colors.accent : colors.faint}>{isSelected ? '▌ ' : '  '}</Text>
       <Box width={item.description ? 16 : 'relative'}>
-        <Text inverse={isSelected} dimColor={isDisabled}>
+        <Text
+          color={isSelected ? colors.bright : colors.fg}
+          bold={isSelected}
+          dimColor={isDisabled}
+        >
           {item.label}
         </Text>
       </Box>

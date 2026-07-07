@@ -4,7 +4,7 @@ import { Markdown } from '../lib/components/Markdown';
 import { CHROME_ROWS } from '../constants';
 
 // ANSI dim + reset-dim around the indicator so it renders subdued without a flex row
-const DIM_INDICATOR = '\x1b[2m● \x1b[22m';
+const DIM_INDICATOR = '\x1b[2m◆ \x1b[22m';
 
 interface AssistantMessageProps {
   message: MessageType;

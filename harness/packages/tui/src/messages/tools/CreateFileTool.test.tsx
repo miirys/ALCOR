@@ -22,7 +22,7 @@ describe('CreateFileTool', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('Create');
+      expect(lastFrame()).toContain('✎ Write');
       expect(lastFrame()).toContain('src/test.ts');
     });
 
