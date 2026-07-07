@@ -1,0 +1,100 @@
+@import '@gitlab/ui/src/scss/gitlab_ui';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* These are gitlab-ui overrides.  */
+  --gl-text-color-default: var(--editor-foreground);
+  --gl-text-color-strong: var(--editor-foreground);
+  --gl-text-color-heading: var(--editor-foreground);
+  --gl-text-color-link: var(--editor-textLink-foreground);
+  --gl-text-color-secondary: var(--editor-foreground--muted);
+  --gl-control-background-color-default: var(--editor-badge-background);
+
+  --gl-control-background-color-disabled: var(--editor-input-background-focus);
+  --gl-color-text-disabled: var(--editor-foreground-disabled);
+
+  --gl-button-default-primary-foreground-color-default: var(--editor-button-foreground);
+  --gl-button-default-primary-background-color-default: var(--editor-button-background);
+  --gl-button-default-primary-border-color-default: var(--editor-button-border);
+  --gl-button-default-primary-foreground-color-hover: var(--editor-button-foreground);
+  --gl-button-default-primary-background-color-hover: var(--editor-button-background-hover);
+  --gl-button-default-primary-border-color-hover: var(--editor-button-border);
+  --gl-button-default-primary-foreground-color-focus: var(--editor-button-foreground);
+  --gl-button-default-primary-background-color-focus: var(--editor-button-background);
+  --gl-button-default-primary-border-color-focus: var(--editor-button-border);
+  --gl-button-default-primary-foreground-color-active: var(--editor-button-foreground);
+  --gl-button-default-primary-background-color-active: var(--editor-button-background-hover);
+  --gl-button-default-primary-border-color-active: var(--editor-button-border);
+
+  --gl-button-confirm-primary-border-color-focus: var(
+    --editor-button-border
+  ); /* Used for the border of a confirm (positive) primary button in the focus state. */
+  --gl-button-confirm-primary-background-color-active: var(
+    --editor-button-background-hover
+  ); /* Used for the background of a confirm (positive) primary button in the active state. */
+  --gl-button-confirm-primary-background-color-hover: var(
+    --editor-button-background-hover
+  ); /* Used for the background of a confirm (positive) primary button in the hover state. */
+  --gl-button-confirm-primary-background-color-default: var(
+    --editor-button-background
+  ); /* Used for the background of a confirm (positive) primary button in the default state. */
+  --gl-button-confirm-primary-foreground-color-default: var(--editor-button-foreground);
+  --gl-button-confirm-primary-border-color-default: var(--editor-button-border);
+
+  --gl-button-confirm-secondary-background-color-default: var(--editor-background);
+  --gl-button-confirm-secondary-background-color-hover: var(
+    --gl-button-confirm-tertiary-background-color-hover
+  );
+  --gl-button-confirm-secondary-border-color-default: var(--editor-button-background);
+  --gl-button-confirm-secondary-border-color-hover: var(--editor-button-background);
+  --gl-button-confirm-secondary-foreground-color-default: var(--editor-button-background);
+  --gl-button-confirm-secondary-foreground-color-hover: var(--editor-button-background);
+
+  --gl-button-confirm-tertiary-foreground-color-default: var(--editor-button-background);
+  --gl-button-confirm-tertiary-foreground-color-hover: var(--editor-button-background);
+
+  --gl-button-danger-secondary-background-color-default: var(--editor-background);
+  --gl-button-danger-secondary-background-color-hover: var(
+    --gl-button-danger-tertiary-background-color-hover
+  );
+
+  --gl-button-default-tertiary-foreground-color-default: var(--editor-foreground);
+  --gl-button-default-tertiary-foreground-color-hover: var(--editor-foreground);
+
+  --gl-background-color-default: var(--editor-background);
+  --gl-button-dashed-border-color-default: var(--editor-foreground);
+
+  --gl-alert-info-background-color: var(
+    --editor-alert-background
+  ); /* Used for the background color of an info alert. */
+  --gl-alert-info-title-color: var(
+    --editor-alert-foreground
+  ); /* Used for the title color of an info alert. */
+
+  --gl-text-color-heading: var(--editor-heading-foreground);
+
+  --gl-border-color-default: var(--editor-foreground--muted);
+
+  --gl-background-color-overlap: var(--editor-alert-background);
+
+  --gl-dropdown-background-color: var(--editor-background);
+  --gl-dropdown-option-text-color-default: var(--editor-foreground);
+  --gl-dropdown-option-text-color-hover: var(--editor-foreground);
+
+  // Workflow specific variables
+  --navbar-height: 2rem;
+}
+
+body {
+  font-family: var(--editor-font-family);
+  font-size: var(--editor-font-size);
+  background-color: var(--editor-background);
+  color: var(--editor-foreground);
+}
+
+.hidden-svg-container {
+  display: none;
+}

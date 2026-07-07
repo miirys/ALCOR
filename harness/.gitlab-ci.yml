@@ -1,0 +1,794 @@
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        CI_COMMIT_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+variables:
+  REGISTRY_HOST: 'registry.gitlab.com'
+  REGISTRY_GROUP: 'gitlab-org'
+  CI_NODE_TAG: "0c52cfefa3992c56"
+  BUN_INSTALL_CACHE_DIR: '$CI_PROJECT_DIR/.bun-cache'
+  SAST_EXCLUDED_PATHS: '.bun-cache'
+
+stages:
+  - build
+  - validate
+  - test
+  - deploy
+
+default:
+  interruptible: true
+  # Pull the ci-node image from the canonical project's public registry so that
+  # fork pipelines (e.g. renovate dependency MRs) work even when the fork's own
+  # registry is empty. On the canonical project this resolves to the same image.
+  image: $REGISTRY_HOST/$REGISTRY_GROUP/editor-extensions/gitlab-lsp/ci-node:$CI_NODE_TAG
+  tags:
+    - gitlab-org
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+  cache: # Cache modules using lock file
+    key:
+      files:
+        - bun.lock
+    paths:
+      - .bun-cache/
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+  - component: ${CI_SERVER_FQDN}/gitlab-org/components/danger-review/danger-review@2.1.0
+    inputs:
+      job_stage: 'validate'
+    rules:
+      - if: $CI_MERGE_REQUEST_SOURCE_PROJECT_PATH == "gitlab-org/security/editor-extensions/gitlab-lsp"
+        when: never
+      - when: always
+  - component: ${CI_SERVER_FQDN}/components/code-intelligence/typescript-code-intel@v0.0.3
+    inputs:
+      language: typescript
+      node_version: '20'
+  - component: $CI_SERVER_FQDN/gitlab-org/analytics-section/analytics-instrumentation/ci-components/internal_events_validation@v1.0.1
+    inputs:
+      stage: validate
+  - project: 'gitlab-com/gl-security/security-operations/infrastructure-security-public/oidc-modules'
+    ref: 3.4.0
+    file: templates/gcp_auth.yaml
+
+build-ci-node-image:
+  interruptible: false
+  image: docker:28.5.2-cli
+  services:
+    - docker:28.5.2-dind
+  variables:
+    # TLS disabled for faster DinD startup — matches gitlab-org/gitlab .use-docker-in-docker config
+    # See https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/ci/global.gitlab-ci.yml
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ''
+    HEALTHCHECK_TCP_PORT: '2375'
+  stage: build
+  tags:
+    - gitlab-org-docker
+  retry: 2
+  script:
+    - IMAGE_TAG="$CI_REGISTRY_IMAGE/ci-node:$CI_NODE_TAG"
+    - |
+      # Check if image already exists using GitLab Container Registry API (no Docker daemon needed)
+      # The token endpoint is on the GitLab host, not the registry host
+      TOKEN=$(wget -q -O - --header "Authorization: Basic $(printf '%s:%s' "$CI_REGISTRY_USER" "$CI_REGISTRY_PASSWORD" | base64)" \
+        "https://${CI_SERVER_HOST}/jwt/auth?service=container_registry&scope=repository:${CI_PROJECT_PATH}/ci-node:pull" \
+        | sed 's/.*"token":"\([^"]*\)".*/\1/')
+      if [ -n "$TOKEN" ]; then
+        if wget -q -O /dev/null --header "Authorization: Bearer $TOKEN" \
+          "https://$CI_REGISTRY/v2/${CI_PROJECT_PATH}/ci-node/manifests/$CI_NODE_TAG" 2>/dev/null; then
+          echo "Image $IMAGE_TAG already exists, skipping build"
+          exit 0
+        fi
+      fi
+      echo "Image not found, building..."
+    - |
+      echo "Waiting for Docker daemon..."
+      for i in $(seq 1 30); do
+        docker info >/dev/null 2>&1 && break
+        echo "Attempt $i/30: Docker not ready, waiting..."
+        sleep 1
+      done
+      docker info >/dev/null 2>&1 || { echo "Docker daemon failed to start"; exit 1; }
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker build -f docker/ci-node/Dockerfile -t "$IMAGE_TAG" .
+    - docker push "$IMAGE_TAG"
+    - echo "Pushed $IMAGE_TAG"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker/ci-node/Dockerfile
+        - mise/config.toml
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/ci-node/Dockerfile
+        - mise/config.toml
+
+verify-ci-node-tag:
+  stage: validate
+  needs: []
+  script:
+    - EXPECTED=$(cat docker/ci-node/Dockerfile mise/config.toml | sha256sum | cut -c1-16)
+    - |
+      if [ "$EXPECTED" != "$CI_NODE_TAG" ]; then
+        echo "CI_NODE_TAG mismatch: expected '$EXPECTED', got '$CI_NODE_TAG'"
+        echo "Fix: run 'lefthook run pre-commit --force' to update CI_NODE_TAG"
+        echo "If the hook was already run, rebase on main — the merge result may include changes to Dockerfile or mise/config.toml from the target branch."
+        exit 1
+      fi
+    - echo "CI_NODE_TAG '$CI_NODE_TAG' matches source files"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+verify-bun-lock-format:
+  stage: validate
+  needs: []
+  script:
+    - scripts/check_bun_lock_format.sh
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.install dependencies:
+  script: &bun_install
+    - time bun install --frozen-lockfile
+
+.turbo-remote-cache:
+  variables:
+    TURBO_API: $TURBO_CACHE_API_URL
+    # Must match value in remote cache server for cached artifacts to be usable in builds
+    TURBO_REMOTE_CACHE_SIGNATURE_KEY: $TURBO_REMOTE_CACHE_SIGNATURE_KEY
+  id_tokens:
+    TURBO_TOKEN:
+      aud: $TURBO_CACHE_API_URL
+
+no-squash-with-tags:
+  stage: 'validate'
+  variables:
+    FF_ENABLE_BASH_EXIT_CODE_CHECK: true
+  script:
+    - scripts/no_squash_with_tags.sh
+
+lint_documentation:
+  stage: validate
+  inherit:
+    default: false
+  image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/lint-markdown:alpine-3.23-vale-3.14.1-markdownlint2-0.22.1-lychee-0.24.2
+  script:
+    # Lint prose
+    - vale --minAlertLevel error docs README.md
+    # Lint Markdown
+    - markdownlint-cli2 'docs/**/*.md' 'packages/**/*.md' 'src/common/**/*.md' "!**/node_modules/**" "!**/vendor/**" README.md CONTRIBUTING.md
+    # Check links
+    - lychee --offline --include-fragments --root-dir . docs/**/*.md *.md
+
+lint:
+  stage: validate
+  script:
+    - *bun_install
+    - bun run eslint -- --format gitlab
+    - bun run prettier
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+lint_commit:
+  stage: validate
+  script:
+    - apt-get update && apt-get install -y git
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME $CI_COMMIT_SHA
+    - cd scripts/commit-lint && bun install --frozen-lockfile
+    - ./lint.sh
+  rules:
+    - if: '$CI_MERGE_REQUEST_TITLE =~ /^Draft:/'
+      when: never
+    - if: '$CI_MERGE_REQUEST_IID && $CI_PROJECT_VISIBILITY == "public"' # lint.js script makes an API call without authentication
+      when: always
+
+verify-cli-docs:
+  stage: validate
+  needs: []
+  script:
+    - *bun_install
+    - |
+      if ! bun --conditions=_ts-source packages/cli/scripts/gen_docs.ts --check; then
+        echo "packages/cli/docs/cli-reference.md is out of date."
+        echo "Fix: run 'bun run --filter @gitlab/duo-cli docs' (or 'lefthook run pre-commit --force') and commit the result."
+        exit 1
+      fi
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+verify-api-extractor-config:
+  stage: validate
+  needs: []
+  script:
+    - *bun_install
+    - bun scripts/generate_api_extractor_config.ts
+    - |
+      if ! git diff --exit-code api-extractor.json; then
+        echo "api-extractor.json is out of date (workspace packages changed)."
+        echo "Fix: run 'bun scripts/generate_api_extractor_config.ts' and commit the result."
+        exit 1
+      fi
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+typescript-compiles:
+  extends: .turbo-remote-cache
+  stage: validate
+  script:
+    - *bun_install
+    - bun run compile
+
+typescript-compile-scripts:
+  stage: validate
+  script:
+    - *bun_install
+    - bun run compile:scripts
+
+typescript-compile-integration:
+  stage: validate
+  script:
+    - *bun_install
+    - bun run compile:integration
+
+.test:
+  stage: test
+  needs: []
+  artifacts:
+    when: always
+    reports:
+      junit: reports/unit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: reports/cobertura-coverage.xml
+
+unit-tests:
+  extends: .test
+  script:
+    - *bun_install
+    - ./scripts/run_test_and_detect_open_handles.sh
+
+cli-tests:
+  stage: test
+  needs: []
+  script:
+    - *bun_install
+    - bun run test:cli
+
+cli-headless-e2e-test:
+  stage: test
+  needs:
+    - job: build_cli_binaries_artifact-unsigned
+      artifacts: true
+  image: registry.gitlab.com/gitlab-org/duo-workflow/default-docker-image/workflow-generic-image:v0.0.6
+  variables:
+    GITLAB_AUTH_TOKEN: $GITLAB_TEST_TOKEN
+    DUO_CLI_BINARY_PATH: packages/cli/bin/duo-linux-x64
+  before_script:
+    - yum install -y unzip
+    - BUN_VERSION="bun-v$(sed -nE 's/^bun = "([^"]+)".*/\1/p' mise/config.toml)"
+    - curl -fsSL https://bun.sh/install | bash -s "$BUN_VERSION"
+    - export BUN_INSTALL="$HOME/.bun"
+    - export PATH="$BUN_INSTALL/bin:$PATH"
+    - test -x "$DUO_CLI_BINARY_PATH" || { echo "Pre-built binary missing at $DUO_CLI_BINARY_PATH"; exit 1; }
+    - bun install --frozen-lockfile
+  script:
+    - bun -i packages/cli/scripts/test-headless-in-docker/run-in-ci.ts
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+
+cli-e2e-test:
+  extends:
+    - .test
+    - .run_when_has_token_or_on_merge_train
+    - .turbo-remote-cache
+  stage: test
+  needs: []
+  variables:
+    ASCIINEMA_SERVER_URL: 'https://asciinema.duo-cli-testing.com/'
+  before_script:
+    - *bun_install
+    - mkdir -p ~/.local/state/asciinema
+    - echo "$ASCIINEMA_INSTALL_ID" > ~/.local/state/asciinema/install-id
+  script:
+    - git remote set-url origin https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp.git
+    - bun run --filter @gitlab/duo-cli test:e2e
+
+# The cert/proxy network e2e suite is run once per CLI runtime so both the
+# Node.js bundle and the Bun-compiled binary exercise the cert/proxy/WebSocket
+# code paths we ship to customers. The two jobs run in parallel. The Bun job
+# consumes the prebuilt binary artifact instead of recompiling it.
+# See docs/ai/cert-proxy.md § "CI Integration".
+cli-network-e2e-node:
+  extends:
+    - .run_when_has_token_or_on_merge_train
+    - .turbo-remote-cache
+  stage: test
+  needs: []
+  before_script:
+    - *bun_install
+  script:
+    - bun run --filter @gitlab/duo-cli test:network-e2e:node
+  retry: 1
+  allow_failure: true # remove once stable in CI
+
+cli-network-e2e-bun:
+  extends:
+    - .run_when_has_token_or_on_merge_train
+    - .turbo-remote-cache
+  stage: test
+  # The compiled binary is standalone (Bun-embedded) and runs without a
+  # separate Bun install. The default ci-node image still provides the pinned
+  # Bun (mise/config.toml) for `bun run` + tmux for the terminal harness.
+  needs:
+    - job: build_cli_binaries_artifact-unsigned
+      artifacts: true
+  variables:
+    # getCompiledBinaryPath() resolves bin/duo-linux-x64 on linux x64.
+    DUO_CLI_BINARY_PATH: packages/cli/bin/duo-linux-x64
+  before_script:
+    - test -x "$DUO_CLI_BINARY_PATH" || { echo "Pre-built binary missing at $DUO_CLI_BINARY_PATH"; exit 1; }
+    - *bun_install
+  script:
+    - bun run --filter @gitlab/duo-cli test:network-e2e:bun
+  retry: 1
+  allow_failure: true # remove once stable in CI
+
+# unit-tests-windows:
+#   extends:
+#     - .windows_job
+#   stage: test
+#   needs: []
+#   script:
+#     - node -v
+#     - bun run test:unit
+
+duo-chat-tests:
+  extends: .test
+  script:
+    - *bun_install
+    - bun run test:chat:app
+    - bun run test:chat:plugin
+
+agentic-duo-chat-tests:
+  extends: .test
+  script:
+    - *bun_install
+    - bun run test:agentic-lib:app
+    - bun run test:agentic-lib:plugin
+
+ui-test-unified-webview:
+  extends: .test
+  image: mcr.microsoft.com/playwright:v1.59.1-noble
+  before_script:
+    - apt-get update -qy && apt-get install -qy unzip curl
+    - BUN_VERSION="bun-v$(sed -nE 's/^bun = "([^"]+)".*/\1/p' mise/config.toml)"
+    - curl -fsSL https://bun.sh/install | bash -s "$BUN_VERSION"
+    - export BUN_INSTALL="$HOME/.bun"
+    - export PATH="$BUN_INSTALL/bin:$PATH"
+    - bun install --frozen-lockfile
+  script:
+    - bun run test:storybook:webview
+
+unit-test-unified-webview:
+  extends: .test
+  script:
+    - *bun_install
+    - bun run test:unit:webview
+
+# This set of rules skips a job if the GITLAB_TEST_TOKEN is not defined and
+# the pipeline doesn't run in merge train. This is useful for community contributors/renovate fork
+.run_when_has_token_or_on_merge_train:
+  rules:
+    - if: $GITLAB_TEST_TOKEN || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+
+.sign_with_cloud_hsm_base:
+  image: ${CI_REGISTRY}/gitlab-com/gl-infra/common-ci-tasks-images/code-signer:1.3.0
+  extends: .google-oidc:auth
+  variables:
+    GCLOUD_PROJECT: gitlab-ci-runners-signing
+    SERVICE_ACCOUNT: gitlab-lsp-signer@gitlab-ci-runners-signing.iam.gserviceaccount.com
+    WI_POOL_PROVIDER: //iam.googleapis.com/projects/8522242139/locations/global/workloadIdentityPools/gitlab-pool-oidc-$CI_PROJECT_ID/providers/gitlab-jwt-$CI_PROJECT_ID
+
+.rg_cache:
+  cache:
+    key:
+      files:
+        - bun.lock
+      prefix: rg-binaries-v1
+    paths:
+      - rg-binaries/
+    policy: pull-push
+
+build-integration-binaries-unsigned:
+  stage: test
+  extends:
+    - .rg_cache
+    - .turbo-remote-cache
+  needs: []
+  script:
+    - *bun_install
+    - bun run build
+    - ./scripts/package.sh
+    - |
+      echo "Stripping Bun's broken Mach-O code signature from macOS binaries..."
+      node ./scripts/strip_macho_codesign.js bin/gitlab-lsp-macos-x64
+  artifacts:
+    paths:
+      - bin/**/*
+      - out/**/*
+
+build-integration-binaries:
+  extends: .sign_with_cloud_hsm_base
+  stage: test
+  needs:
+    - build-integration-binaries-unsigned
+  script:
+    - |
+      if [[ "$CI_COMMIT_REF_PROTECTED" == "true" && "$CI_SERVER_HOST" == "gitlab.com" &&
+          ("$CI_PROJECT_PATH" == "gitlab-org/editor-extensions/gitlab-lsp" ||
+          "$CI_PROJECT_PATH" == "gitlab-org/security/editor-extensions/gitlab-lsp") ]]; then
+        echo "Signing Windows binaries..."
+        sign-windows-binaries --overwrite bin/gitlab-lsp-win-x64.exe bin/gitlab-lsp-win-arm64.exe
+        echo "Signing and notarizing macOS binaries..."
+        sign-macos-binaries --rcodesign-args "--entitlements-xml-file ./macos-entitlements.xml" --overwrite bin/gitlab-lsp-macos-arm64 bin/gitlab-lsp-macos-x64
+      else
+        echo "Signing binaries only with macOS entitlements..."
+        rcodesign sign bin/gitlab-lsp-macos-arm64 --code-signature-flags runtime --entitlements-xml-file ./macos-entitlements.xml
+        rcodesign sign bin/gitlab-lsp-macos-x64 --code-signature-flags runtime --entitlements-xml-file ./macos-entitlements.xml
+      fi
+  artifacts:
+    paths:
+      - bin/**/*
+      - out/**/*
+
+integration-test-binaries-linux:
+  extends: .test
+  stage: test
+  needs:
+    - build-integration-binaries
+  before_script:
+    - apt-get update -qy
+    - apt-get install -qy tinyproxy
+  script:
+    - node -v
+    - *bun_install
+    - bun run test:integration
+  variables:
+    LSP_COMMAND: ./bin/gitlab-lsp-linux-x64
+    LSP_ARGS: '--stdio'
+
+# macOS-gated: shared Linux runners reject SRT's bubblewrap (capability-stripped userns).
+integration-test-sandbox-macos:
+  stage: test
+  needs: []
+  cache: []
+  tags:
+    - saas-macos-medium-m1
+  image: macos-15-xcode-16
+  before_script:
+    # macOS runners ship node + brew but not bun; install it for this job.
+    - curl -fsSL https://bun.sh/install | bash
+    - export PATH="$HOME/.bun/bin:$PATH"
+  script:
+    - bun install --frozen-lockfile
+    - bun run test:integration:sandbox
+  retry: 1
+
+# integration-test-binaries-windows:
+#   extends:
+#     - .windows_job
+#   stage: test
+#   needs:
+#     - build-integration-binaries
+#   script:
+#     - bun run test:integration
+#   variables:
+#     LSP_COMMAND: ./bin/gitlab-lsp-win-x64.exe
+
+integration-test-vs-code-node-bundle:
+  extends:
+    - .test
+    - .run_when_has_token_or_on_merge_train
+    - .turbo-remote-cache
+  before_script:
+    - apt-get update -qy
+    - apt-get install -qy tinyproxy
+  script:
+    - *bun_install
+    - bun run build
+    - bun run test:integration
+  retry: 2
+  variables:
+    LSP_COMMAND: node
+    LSP_ARGS: './out/main-bundle-node.js --stdio'
+    VALIDATE_CI_AND_BUNDLE: true
+
+integration-test-git:
+  extends: .test
+  script:
+    - *bun_install
+    - bun run test:integration:git
+  variables:
+    TEST_GIT_INTEGRATION: true
+
+integration-persistent-storage:
+  extends: .test
+  script:
+    - *bun_install
+    - bun run test:integration:persistent-storage
+  variables:
+    TEST_GIT_INTEGRATION: true
+
+integration-test-browser:
+  extends: .test
+  stage: test
+  needs: []
+  allow_failure: true
+  variables:
+    GITLAB_PROJECT_PATH: 'gitlab-org/editor-extensions/gitlab-lsp'
+  before_script:
+    # https://pptr.dev/troubleshooting#running-puppeteer-on-gitlabci
+    - apt-get update -qy
+    - apt-get install -qy gconf-service libasound2 libatk1.0-0 libc6 libcairo2
+      libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libgconf-2-4
+      libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0
+      libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1
+      libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1
+      libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release
+      xdg-utils wget
+  script:
+    - *bun_install
+    - bun run test:integration:browser
+
+publish_package_artifact:
+  extends: .turbo-remote-cache
+  stage: deploy
+  needs: []
+  allow_failure: true
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  variables:
+    TARBALL_NAME: gitlab-lsp.$CI_COMMIT_REF_SLUG.tgz
+  script:
+    - *bun_install
+    - bun run build
+    - bun pm pack
+    - mv *.tgz "$TARBALL_NAME"
+    - TARBALL_URL="$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/raw/$TARBALL_NAME"
+    - printf "%s\n \n  %s\n \n" "Package successfully built. To install it in another project, e.g. in the VS Code extension, run:" "bun add $TARBALL_URL"
+  artifacts:
+    when: on_success
+    paths:
+      - $TARBALL_NAME
+
+publish_binaries_artifact:
+  stage: deploy
+  needs:
+    - job: build-integration-binaries
+      artifacts: true
+  allow_failure: true
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  variables:
+    TARBALL_NAME: gitlab-lsp.$CI_COMMIT_REF_SLUG.tar.gz
+  script:
+    - tar -czvf $TARBALL_NAME ./bin
+    - TARBALL_URL="$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/raw/$TARBALL_NAME"
+    - printf "%s\n \n  %s\n \n" "Package successfully built. To download the binaries:" "$TARBALL_URL"
+  artifacts:
+    when: on_success
+    paths:
+      - $TARBALL_NAME
+
+publish-nuget-artifact:
+  stage: deploy
+  allow_failure: true
+  image: registry.gitlab.com/gitlab-org/editor-extensions/build-images/mono-nuget
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  needs:
+    - job: build-integration-binaries
+      artifacts: true
+  variables:
+    PACKAGE_NAME: GitLab.LanguageServer
+    PACKAGE_VERSION: 999.0.0
+  script:
+    - ./scripts/release-nuget.sh --skip-publish --package-name=$PACKAGE_NAME --package-version=$PACKAGE_VERSION
+    - PACKAGE_URL="$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/raw/$PACKAGE_NAME.$PACKAGE_VERSION.nupkg"
+    - printf "%s\n \n  %s\n \n" "Nuget package successfully built. Download it for local installation:" "$PACKAGE_URL"
+  dependencies:
+    - build-integration-binaries
+  artifacts:
+    when: on_success
+    paths:
+      - $PACKAGE_NAME.$PACKAGE_VERSION.nupkg
+
+publish_npm_dry_run:
+  stage: deploy
+  needs:
+    - job: build-integration-binaries
+      artifacts: true
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  allow_failure: true
+  script:
+    - *bun_install
+    - ./scripts/semantic-release-prepare.sh --dry-run
+
+publish-release::manual:
+  extends: .turbo-remote-cache
+  interruptible: false
+  stage: deploy
+  needs:
+    - job: build-integration-binaries
+      artifacts: true
+  variables:
+    SENTRY_TRACKING_ENABLED: true
+  before_script:
+    # Validate that the repository contains a package.json and extract a few values from it.
+    - |
+      if [[ ! -f package.json ]]; then
+        echo "No package.json found! A package.json file is required to publish a package to the registry."
+        exit 1
+      fi
+    - NPM_PACKAGE_NAME=$(bun -e "console.log(require('./package.json').name)")
+    - NPM_PACKAGE_VERSION=$(bun -e "console.log(require('./package.json').version)")
+    # Validate that the package name is properly scoped to the project's root namespace.
+    - |
+      if [[ ! $NPM_PACKAGE_NAME =~ ^@$CI_PROJECT_ROOT_NAMESPACE/ ]]; then
+        echo "Invalid package scope! Packages must be scoped in the root namespace of the project, e.g. \"@${CI_PROJECT_ROOT_NAMESPACE}/${CI_PROJECT_NAME}\""
+        exit 1
+      fi
+  script:
+    - bun install --frozen-lockfile
+    - PREVIOUS_VERSION=$(bun -e "console.log(require('./package.json').version)")
+    - bun run semantic-release -- --repository-url $CI_PROJECT_URL
+    - ./scripts/post_deployment_checks.sh --previous-version=$PREVIOUS_VERSION
+    - echo "PACKAGE_VERSION=$(bun -e "console.log(require('./package.json').version)")" >> ./build.env
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  artifacts:
+    paths:
+      - ./bin
+    reports:
+      dotenv: ./build.env # This file is used in the release-nuget job to get the PACKAGE_VERSION variable
+  allow_failure: false
+
+release-nuget:
+  interruptible: false
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/editor-extensions/build-images/mono-nuget
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - job: publish-release::manual
+      artifacts: true
+  script:
+    - ./scripts/release-nuget.sh  --package-version=$PACKAGE_VERSION # $PACKAGE_VERSION is set in the publish-release::manual job
+
+.bun-build:
+  extends: .turbo-remote-cache
+  before_script:
+    - bun install
+
+build_cli_binaries_artifact-unsigned:
+  stage: test
+  extends:
+    - .rg_cache
+    - .turbo-remote-cache
+  needs: []
+  before_script:
+    - bun install
+  script:
+    - bun run cli:compile
+    - |
+      echo "Stripping Bun's broken Mach-O code signature from macOS binaries..."
+      node ./scripts/strip_macho_codesign.js packages/cli/bin/duo-darwin-x64-baseline
+  artifacts:
+    paths:
+      - packages/cli/bin/**/*
+
+build_cli_binaries_artifact:
+  extends: .sign_with_cloud_hsm_base
+  stage: test
+  needs:
+    - build_cli_binaries_artifact-unsigned
+  script:
+    - packages/cli/scripts/sign_executables.sh
+  artifacts:
+    paths:
+      - packages/cli/bin/**/*
+
+publish-duo-cli-artifact:
+  stage: deploy
+  needs: []
+  extends: .bun-build
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  script:
+    - ./scripts/release-cli.sh --skip-publish
+    - PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
+    - PACKAGE_URL="$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/raw/gitlab-duo-cli-$PACKAGE_VERSION.tgz"
+    - printf "%s\n \n  %s\n \n" "Duo cli package successfully built. Download it for local installation:" "$PACKAGE_URL"
+  artifacts:
+    when: on_success
+    paths:
+      - gitlab-duo-cli-*.tgz
+
+publish_duo_cli_dry_run:
+  stage: deploy
+  needs: []
+  extends: .bun-build
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+  allow_failure: true
+  script:
+    - ./scripts/release-cli.sh --dry-run
+
+publish-duo-cli:
+  interruptible: false
+  stage: deploy
+  extends: .bun-build
+  id_tokens:
+    NPM_ID_TOKEN:
+      aud: 'npm:registry.npmjs.org'
+  script:
+    - ./scripts/release-cli.sh --package-version=$PACKAGE_VERSION
+  needs:
+    - job: publish-release::manual
+      artifacts: true
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+pre-publish_build_cli_binaries-unsigned:
+  interruptible: false
+  stage: deploy
+  extends: build_cli_binaries_artifact-unsigned
+  needs:
+    - job: publish-release::manual
+      artifacts: true
+  variables:
+    SENTRY_TRACKING_ENABLED: 'true'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+pre-publish-build_cli_binaries_artifact:
+  interruptible: false
+  stage: deploy
+  extends: build_cli_binaries_artifact
+  needs:
+    - job: pre-publish_build_cli_binaries-unsigned
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+publish-duo-cli-binaries:
+  interruptible: false
+  stage: deploy
+  needs:
+    - job: pre-publish-build_cli_binaries_artifact
+      artifacts: true
+    - job: publish-release::manual
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - packages/cli/scripts/publish_executables.sh

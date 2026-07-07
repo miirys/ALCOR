@@ -1,0 +1,45 @@
+{
+  "name": "@gitlab-org/lib-duo-agent-platform",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "peerDependencies": {
+    "@gitlab-lsp/workflow-api": "0.0.0",
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/ai-context": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/credit-ledger": "workspace:*",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/graphql": "^0.0.0",
+    "@gitlab-org/message-bus": "0.0.0",
+    "@gitlab-org/persistent-storage": "0.0.0",
+    "@gitlab-org/telemetry": "0.0.0",
+    "@gitlab-org/webview": "0.0.0",
+    "@gitlab-org/webview-plugin": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./webview": {
+      "_ts-source": "./src/webview/index.ts",
+      "default": "./dist/webview.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./webview": "./dist/webview.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

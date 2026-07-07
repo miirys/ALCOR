@@ -1,0 +1,13 @@
+---
+description: Tracks when a user sends a message in the Quick Chat interface, categorizing by command type or general content.
+action: message_sent
+product_group: editor_extensions
+milestone: '17.7'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/1047
+tiers:
+- premium
+- ultimate
+additional_properties:
+  label:
+    description: Identifies the message type as a specific command (/explain, /refactor, /fix, /tests) or as a general message.

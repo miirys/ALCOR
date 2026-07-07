@@ -1,0 +1,32 @@
+{
+  "name": "@gitlab-org/feature-state",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

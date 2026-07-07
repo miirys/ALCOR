@@ -1,0 +1,53 @@
+{
+  "name": "@gitlab-org/flow-builder",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^2.0.4",
+    "js-yaml": "^4.1.0",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/json-schema": "^7.0.15"
+  },
+  "peerDependencies": {
+    "@gitlab-lsp/workflow-api": "0.0.0",
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/ai-context": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/graphql": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/message-bus": "0.0.0",
+    "@gitlab-org/webview": "0.0.0",
+    "@gitlab-org/webview-plugin": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./flow": {
+      "_ts-source": "./src/webview/flow/index.ts",
+      "default": "./dist/flow.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "inlinedDependencies": {
+    "@types/json-schema": "7.0.15"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./flow": "./dist/flow.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

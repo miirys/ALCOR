@@ -1,0 +1,34 @@
+{
+  "name": "@gitlab-org/persistent-storage",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "proper-lockfile": "^4.1.2"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "@types/proper-lockfile": "^4.1.4"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@gitlab-org/vite-common-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.8",
+    "@gitlab/ui": "^87.2.1",
+    "@vitejs/plugin-vue2": "^1.1.2",
+    "node-html-parser": "^6.1.12",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "vite-plugin-checker": "^0.10.2"
+  },
+  "devDependencies": {
+    "vue": "^2.7.16"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./package.json": "./package.json"
+    }
+  }
+}

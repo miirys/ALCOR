@@ -1,0 +1,38 @@
+{
+  "name": "@gitlab-org/duo-plugin-marketplace",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/fs": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "simple-git": "^3.28.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

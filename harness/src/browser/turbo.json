@@ -1,0 +1,9 @@
+{
+  "$schema": "https://v2-9-5.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "bundle": {
+      "outputs": ["../../out/browser/**", "../../out/vendor/grammars/**"]
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "buildDate": "2025-07-04T14:08:47.893Z",
+  "grammars": [
+    {
+      "name": "scala",
+      "wasmFile": "tree-sitter-scala.wasm",
+      "version": "v0.24.0",
+      "size": 3786693,
+      "outputPath": "vendor/grammars/tree-sitter-scala.wasm"
+    },
+    {
+      "name": "css",
+      "wasmFile": "tree-sitter-css.wasm",
+      "version": "^0.23.2",
+      "size": 110514,
+      "outputPath": "vendor/grammars/tree-sitter-css.wasm"
+    },
+    {
+      "name": "html",
+      "wasmFile": "tree-sitter-html.wasm",
+      "version": "^0.23.2",
+      "size": 18385,
+      "outputPath": "vendor/grammars/tree-sitter-html.wasm"
+    },
+    {
+      "name": "java",
+      "wasmFile": "tree-sitter-java.wasm",
+      "version": "^0.23.5",
+      "size": 414648,
+      "outputPath": "vendor/grammars/tree-sitter-java.wasm"
+    },
+    {
+      "name": "kotlin",
+      "wasmFile": "tree-sitter-kotlin.wasm",
+      "version": "^0.3.8",
+      "size": 4052517,
+      "outputPath": "vendor/grammars/tree-sitter-kotlin.wasm"
+    },
+    {
+      "name": "rust",
+      "wasmFile": "tree-sitter-rust.wasm",
+      "version": "^0.23.2",
+      "size": 1102915,
+      "outputPath": "vendor/grammars/tree-sitter-rust.wasm"
+    },
+    {
+      "name": "yaml",
+      "wasmFile": "tree-sitter-yaml.wasm",
+      "version": "^0.7.0",
+      "size": 189329,
+      "outputPath": "vendor/grammars/tree-sitter-yaml.wasm"
+    },
+    {
+      "name": "cpp",
+      "wasmFile": "tree-sitter-cpp.wasm",
+      "version": "^0.23.4",
+      "size": 3434915,
+      "outputPath": "vendor/grammars/tree-sitter-cpp.wasm"
+    },
+    {
+      "name": "go",
+      "wasmFile": "tree-sitter-go.wasm",
+      "version": "^0.23.4",
+      "size": 209979,
+      "outputPath": "vendor/grammars/tree-sitter-go.wasm"
+    },
+    {
+      "name": "javascript",
+      "wasmFile": "tree-sitter-javascript.wasm",
+      "version": "^0.23.0",
+      "size": 358898,
+      "outputPath": "vendor/grammars/tree-sitter-javascript.wasm"
+    },
+    {
+      "name": "json",
+      "wasmFile": "tree-sitter-json.wasm",
+      "version": "^0.24.8",
+      "size": 5593,
+      "outputPath": "vendor/grammars/tree-sitter-json.wasm"
+    },
+    {
+      "name": "python",
+      "wasmFile": "tree-sitter-python.wasm",
+      "version": "^0.23.6",
+      "size": 457805,
+      "outputPath": "vendor/grammars/tree-sitter-python.wasm"
+    },
+    {
+      "name": "powershell",
+      "wasmFile": "tree-sitter-powershell.wasm",
+      "version": "github:airbus-cert/tree-sitter-powershell#e904962e25858b7e8e19c653e737ad3b7d1c55bd",
+      "size": 863893,
+      "outputPath": "vendor/grammars/tree-sitter-powershell.wasm"
+    }
+  ]
+}

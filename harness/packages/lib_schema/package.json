@@ -1,0 +1,25 @@
+{
+  "name": "@gitlab-org/schema",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.4.1",
+    "@asteasolutions/zod-to-openapi": "^8.5.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

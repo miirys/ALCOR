@@ -1,0 +1,20 @@
+@import '@gitlab/ui/src/scss/gitlab_ui';
+@import '@gitlab/duo-ui/src/scss/components';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-family: var(--editor-font-family);
+  --glDuoChat-foreground: var(--editor-foreground);
+  --glDuoChat-foreground-muted: var(--editor-foreground-muted);
+  --glDuoChat-background: var(--editor-background-alternative);
+  --glDuoChat-background-alternative: var(--editor-background-alternative);
+  --glDuoChat-border-color: var(--editor-border-color);
+  --glDuoChat-input-border-focus: var(--editor-input-border-focus);
+}
+
+.hidden-svg-container {
+  display: none;
+}

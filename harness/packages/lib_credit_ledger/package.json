@@ -1,0 +1,37 @@
+{
+  "name": "@gitlab-org/credit-ledger",
+  "version": "0.1.0",
+  "description": "first-party per-action credit ledger + threshold/switch-decision module for duox-cli. counts each ai action against the official gitlab credit multiplier table, persists per pool group, and fires a switch signal at 90% of a fixed 24-credit cap.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "jest",
+    "compile": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@gitlab-org/core": "workspace:*",
+    "@gitlab-org/logging": "workspace:*",
+    "@gitlab-org/persistent-storage": "workspace:*",
+    "@gitlab/needle": "^2.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29",
+    "ts-jest": "^29",
+    "typescript": "^5.8.3"
+  }
+}

@@ -11,9 +11,11 @@
 
 **80 UMa · The seeing test**
 
-A full-terminal agent harness UI. Monochrome by default — color is reserved
-for diffs, state, and small markers. Runs on Node and Bun. UI only: every
-turn, tool call, and statistic is scripted mock data.
+A full-terminal agent harness. Monochrome by default — color is reserved
+for diffs, state, and small markers. Runs on Node and Bun. Two layers live
+in this repo: `src/` is the standalone UI showcase (every turn, tool call,
+and statistic is scripted mock data), and `harness/` is the real thing —
+the full CLI backend reskinned end-to-end with the ALCOR design.
 
 <br>
 
@@ -22,7 +24,7 @@ turn, tool call, and statistic is scripted mock data.
 ![TypeScript](https://img.shields.io/badge/typescript-strict-000000?style=flat-square&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/react-18-000000?style=flat-square&logo=react&logoColor=white)
 ![Ink](https://img.shields.io/badge/ink-5-000000?style=flat-square)
-![Status](https://img.shields.io/badge/status-UI%20only%20·%20mock%20data-555555?style=flat-square)
+![Status](https://img.shields.io/badge/status-UI%20showcase%20%2B%20real%20harness-555555?style=flat-square)
 
 <br>
 
@@ -39,6 +41,7 @@ turn, tool call, and statistic is scripted mock data.
 - [Everything in the box](#everything-in-the-box)
 - [Themes](#themes)
 - [Keys](#keys)
+- [The real harness](#the-real-harness--harness)
 - [Wiring a real backend](#wiring-a-real-backend)
 - [Structure](#structure)
 
@@ -105,18 +108,37 @@ across every theme; only the identity accent changes.
 
 ---
 
+## The real harness — `harness/`
+
+`harness/` is the full CLI (GitLab Duo CLI fork) with the ALCOR design
+integrated into its live TUI: the monochrome palette, the wordmark, the
+`❯ BUILD / ▤ PLAN / ≫ AUTO` mode chrome, the `❯` prompt, the star-pulse
+thinking shimmer, the `CTX nn%` meter, and the full ALCOR rebrand across
+help, diagnostics, notifications, and the config screen. Backend logic and
+GitLab endpoints are untouched; the reskin lives almost entirely in
+`harness/packages/tui`. All 1089 TUI tests pass.
+
+    cd harness
+    bun install
+    cd packages/cli && bun --conditions=_ts-source ./src/index.tsx
+
+---
+
 ## Wiring a real backend
 
-The mock seam is two files. [**docs/INTEGRATION.md**](docs/INTEGRATION.md)
-maps every UI event to the open-source GitLab Duo CLI's agent loop —
-sessions, streaming, tool approval, Build/Plan modes, slash commands, MCP,
-skills, hooks — so an agent can connect an existing backend without reading
-the whole UI.
+For the showcase in `src/`, the mock seam is two files.
+[**docs/INTEGRATION.md**](docs/INTEGRATION.md) maps every UI event to the
+open-source GitLab Duo CLI's agent loop — sessions, streaming, tool
+approval, Build/Plan modes, slash commands, MCP, skills, hooks. `harness/`
+is that document applied to the real CLI.
 
 ---
 
 ## Structure
 
+    harness/           The real CLI with the ALCOR skin (see above)
+      packages/tui/    Where the reskin lives — colors, logo, chrome, glyphs
+      packages/cli/    Entrypoint + rebranded user-facing strings
     src/
       index.tsx        Entry — alt-screen, cursor, signals
       app.tsx          Screen router + theme state

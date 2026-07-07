@@ -1,0 +1,20 @@
+[env]
+# Add this for simplier access to npm binaries. That may interfere with binaries like npm which are in the project's dependencies
+'_'.path = ["{{config_root}}/node_modules/.bin"]
+
+# Integration tests variables
+GITLAB_TEST_TOKEN = "<gitlab test token>"
+# LSP_COMMAND="./bin/gitlab-lsp-linux-x64"
+# LSP_ARGS="--stdio"
+
+# Webview dev mode (mise run start:dev)
+# Required scopes: api, read_api, ai_features
+GITLAB_TOKEN = "<gitlab_dev_token>"
+GITLAB_BASE_URL = "https://gitlab.com"
+GITLAB_PROJECT_PATH = "gitlab-org/gitlab"
+# GITLAB_WORKSPACE_FOLDER = "/path/to/local/project"
+
+# Turbo watch config. These can be set to avoid needing to use `--editor`, `--editor-path` flags each time
+# LS_EDITOR="vscode"
+# LS_EDITOR_PATH="../gitlab-vscode-extension"
+# LS_SYNC_VIA_YALC="true"

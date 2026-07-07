@@ -1,0 +1,54 @@
+{
+  "name": "@gitlab-lsp/workflow-api",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@gitlab-org/ai-context": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/fetch": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/persistent-storage": "0.0.0",
+    "@gitlab-org/resiliency": "0.0.0",
+    "graphql-request": "^7.1.2",
+    "js-yaml": "^4.1.0",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "@gitlab-org/webview": "0.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./test_fixtures": {
+      "_ts-source": "./src/test_fixtures.ts",
+      "default": "./dist/test_fixtures.mjs"
+    },
+    "./test_utils": {
+      "_ts-source": "./src/test_utils.ts",
+      "default": "./dist/test_utils.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./test_fixtures": "./dist/test_fixtures.mjs",
+      "./test_utils": "./dist/test_utils.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

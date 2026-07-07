@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "lib": ["es2022", "WebWorker", "DOM"],
+    "emitDeclarationOnly": true
+  },
+  "include": ["**/*.ts", "./**/*.json"]
+}

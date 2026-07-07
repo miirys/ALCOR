@@ -1,0 +1,44 @@
+{
+  "name": "@gitlab-org/fetch",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@gitlab-org/logging": "*",
+    "@gitlab-org/resiliency": "*",
+    "@gitlab-org/test-utils": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "cross-fetch": "^4.1.0",
+    "get-proxy-settings": "^0.1.13",
+    "lodash-es": "^4.18.1",
+    "proxy-agent": "^6.5.0",
+    "proxy-from-env": "^1.1.0",
+    "undici": "^7.11.0",
+    "vscode-languageserver-protocol": "^3.17.5"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/proxy-from-env": "^1.0.4"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node/index.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@gitlab-org/rpc-endpoint-lsp-adapter",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/rpc": "0.0.0",
+    "@gitlab-org/rpc-endpoint": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "peerDependencies": {
+    "vscode-languageserver": "^9.0.1"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

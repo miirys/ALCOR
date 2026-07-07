@@ -1,0 +1,52 @@
+{
+  "name": "@gitlab-org/telemetry",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/fetch": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/persistent-storage": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.57.2",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.57.2",
+    "@opentelemetry/resources": "^1.30.1",
+    "@opentelemetry/sdk-metrics": "^1.30.1",
+    "@opentelemetry/sdk-trace-node": "^1.30.1",
+    "@opentelemetry/semantic-conventions": "^1.28.0",
+    "@snowplow/tracker-core": "^3.24.6",
+    "ajv-draft-04": "^1.0.0",
+    "lodash-es": "^4.18.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "@types/lodash-es": "^4.17.12",
+    "@types/uuid": "^9.0.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node/index.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

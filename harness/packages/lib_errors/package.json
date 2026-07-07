@@ -1,0 +1,36 @@
+{
+  "name": "@gitlab-org/errors",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/request-context": "0.0.0",
+    "@gitlab-org/test-utils": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "@sentry/node": "9.7.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node/index.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

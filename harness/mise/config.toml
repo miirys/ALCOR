@@ -1,0 +1,174 @@
+[tools]
+node = "22.22.1"
+python = "3.10.20"
+# Bumping bun version? The Bun WebSocket proxy/TLS heuristic in
+# packages/lib_fetch/src/websocket_options.ts (toBunWsOptions) is pinned to
+# this version. Re-run packages/cli/test/e2e/network/ before merging.
+bun = "1.3.10"
+glab = "1.102.0"
+npm = "11.5.1"     # required for npm trusted publishing that is used by Duo CLI
+
+# For linting documentation
+lychee = "0.24.2"
+markdownlint-cli2 = "0.22.1"
+vale = "3.14.1"
+tmux = "3.6a"
+
+# For TUI e2e testing / demo recording
+"aqua:asciinema/asciinema" = { version = "3.2.0", os = ["linux", "macos"] }
+"aqua:asciinema/agg" = "1.7.0"
+
+# NOTE: mise sets the task's working directory to the directory of the mise config file
+# sets the working directory to the project's root
+# I didn't find any less verbose way to do this
+[tasks]
+[tasks.start]
+run = "node ./out/main-bundle-node.js --socket=6789"
+description = "Start the language server"
+depends = ["build"]
+
+[tasks."start:dev"]
+run = "node ./out/main-bundle-node.js --socket=6789 --dev --http-port=3007"
+description = "Start the language server in webview dev mode (env var auth, CSRF endpoint, fixed HTTP port)"
+depends = ["build"]
+
+[tasks.debug]
+run = "node  --inspect=6010 ./out/main-bundle-node.js --socket=6789"
+description = "Start the language server in debug mode"
+depends = ["build"]
+
+[tasks.watch]
+run = "bun run watch"
+description = "Watch for file changes"
+
+[tasks.compile]
+run = "bun run compile"
+description = "Compile TypeScript"
+
+[tasks."compile:scripts"]
+run = "tsc -p scripts --noEmit"
+description = "Typechecks scripts"
+
+[tasks."compile:integration"]
+run = "tsc -b src/common && tsc -b src/node && tsc -p src/tests --noEmit"
+description = "Compile for integration tests"
+
+[tasks."compile:wasm"]
+run = "tsx --tsconfig ./scripts/tsconfig.json scripts/wasm/build_tree_sitter_wasm.ts"
+description = "Compile WASM"
+
+[tasks.build]
+run = "bun run build"
+description = "Build all packages"
+
+[tasks.eslint]
+run = [
+  "eslint --report-unused-disable-directives ./src/{browser,node,common}/**",
+  "{{mise_bin}} run eslint:packages",
+]
+description = "Lint code with ESLint"
+
+[tasks."eslint:fix"]
+run = [
+  "eslint --fix ./src/{browser,node,common}/**",
+  "{{mise_bin}} run eslint:packages:fix",
+]
+description = "Fix ESLint issues"
+
+[tasks."eslint:packages"]
+run = "eslint --report-unused-disable-directives ./packages/**"
+description = "Lint packages with ESLint"
+
+[tasks."eslint:packages:fix"]
+run = "eslint --fix --report-unused-disable-directives ./packages/**"
+description = "Fix ESLint issues in packages"
+
+[tasks.prettier]
+run = "prettier --check '**/*.{js,ts,json}'"
+description = "Check formatting with Prettier"
+
+[tasks."prettier:fix"]
+run = "prettier --write '**/*.{js,ts,json}'"
+description = "Fix formatting with Prettier"
+
+[tasks.autofix]
+depends = ["eslint:fix", "prettier:fix"]
+description = "Fix ESLint and Prettier issues"
+
+[tasks.test]
+depends = ["test:unit", "test:integration"]
+description = "Run all tests"
+
+[tasks."test:unit"]
+run = "jest --config jest.unit.config.ts"
+description = "Run unit tests"
+
+[tasks."test:unit:watch"]
+run = "jest --watch --config jest.unit.config.ts"
+description = "Run unit tests in watch mode"
+
+[tasks."test:integration"]
+run = "jest --config jest.integration.config.ts"
+depends = ["build"]
+description = "Run integration tests"
+
+[tasks."test:integration:git"]
+run = "jest --config jest.integration.config.ts --testMatch=\"**/src/tests/int/git/**/*.test.ts\""
+depends = ["build"]
+description = "Run git integration tests"
+
+[tasks."test:chat:app"]
+run = "bun run --filter @gitlab-org/webview-duo-chat-classic test:app"
+description = "Test chat app"
+
+[tasks."test:chat:plugin"]
+run = "bun run --filter @gitlab-org/webview-duo-chat-classic test:plugin"
+description = "Test chat plugin"
+
+[tasks."test:agentic-chat:app"]
+run = "jest --config packages/lib_webview_agentic_chat/jest.app.config.cjs"
+description = "Test agentic chat app"
+
+[tasks."test:agentic-chat:plugin"]
+run = "jest --config packages/lib_webview_agentic_chat/jest.plugin.config.cjs"
+description = "Test agentic chat plugin"
+
+[tasks."test:agentic-tabs:app"]
+run = "jest --config packages/webview_agentic_tabs/jest.app.config.cjs"
+description = "Test agentic tabs app"
+
+[tasks."test:agentic-tabs:plugin"]
+run = "jest --config packages/webview_agentic_tabs/jest.plugin.config.cjs"
+description = "Test agentic tabs plugin"
+
+[tasks."bundle:browser"]
+run = "bun run bundle:browser"
+description = "Bundle browser code"
+
+[tasks."bundle:desktop"]
+run = "bun run bundle:desktop"
+description = "Bundle desktop code"
+
+[tasks."bundle:common"]
+run = "bun run bundle:common"
+description = "Bundle common code"
+
+[tasks.bundle]
+run = "bun run bundle"
+description = "Bundle all code"
+
+[tasks."generate:documentation"]
+run = "tsx --tsconfig ./scripts/tsconfig.json scripts/documentation/main.ts"
+description = "Generate documentation"
+
+[tasks.clean]
+run = "bun run clean"
+description = "Clean up build artifacts"
+
+[tasks.package-binaries]
+run = "./scripts/package.sh"
+description = "Build binaries with Node SEA"
+
+[tasks."prepare:browser-e2e"]
+run = "bun run test:integration:browser:prepare"
+description = "Prepare browser integration tests dependencies and test artifacts"

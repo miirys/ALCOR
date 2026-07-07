@@ -1,0 +1,39 @@
+{
+  "name": "@gitlab-org/webview-vuln-details",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/webview-client": "0.0.0",
+    "@gitlab-org/webview-plugin": "0.0.0",
+    "@gitlab/ui": "^90.5.0",
+    "@ts-stack/markdown": "^1.5.0"
+  },
+  "devDependencies": {
+    "@gitlab-org/vite-common-config": "0.0.0",
+    "sass": "^1.77.8",
+    "vite": "^5.3.5",
+    "vue": "^2.7.16"
+  },
+  "scripts": {
+    "build:plugin": "tsdown --tsconfig tsconfig.plugin.json",
+    "build:webview": "vite build",
+    "dev": "vite",
+    "build:watch": "vite --config vite.config.ts build --watch"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

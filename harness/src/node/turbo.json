@@ -1,0 +1,18 @@
+{
+  "$schema": "https://v2-9-5.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "bundle": {
+      "outputs": [
+        "../../out/main-bundle-node.js",
+        "../../out/main-bundle-node.js.map",
+        "../../out/sandbox_worker.js",
+        "../../out/sandbox_worker.js.map",
+        "../../out/rg",
+        "../../out/rg.exe",
+        "../../out/tree-sitter.wasm",
+        "../../out/vendor/grammars/**"
+      ]
+    }
+  }
+}

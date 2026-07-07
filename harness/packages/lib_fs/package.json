@@ -1,0 +1,34 @@
+{
+  "name": "@gitlab-org/fs",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@gitlab/needle": "2.0.0",
+    "isomorphic-git": "^1.32.3"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node/index.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

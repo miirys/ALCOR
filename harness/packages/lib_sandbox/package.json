@@ -1,0 +1,59 @@
+{
+  "name": "@gitlab-org/sandbox",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sandbox-runtime": "0.0.62",
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/duo-workflow-service": "0.1.51",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/rpc": "0.0.0",
+    "@gitlab-org/rpc-client": "0.0.0",
+    "@gitlab-org/secret-redaction": "0.0.0",
+    "@gitlab-org/workflow-executor": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./empty": {
+      "_ts-source": "./src/empty_sandbox_availability_service.ts",
+      "default": "./dist/empty.mjs"
+    },
+    "./errors": {
+      "_ts-source": "./src/errors.ts",
+      "default": "./dist/errors.mjs"
+    },
+    "./feature-state": {
+      "_ts-source": "./src/feature_state/public.ts",
+      "default": "./dist/feature-state.mjs"
+    },
+    "./worker": {
+      "_ts-source": "./src/worker/worker_main.ts",
+      "default": "./dist/worker.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./empty": "./dist/empty.mjs",
+      "./errors": "./dist/errors.mjs",
+      "./feature-state": "./dist/feature-state.mjs",
+      "./worker": "./dist/worker.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

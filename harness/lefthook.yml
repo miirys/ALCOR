@@ -1,0 +1,42 @@
+pre-commit:
+  parallel: false
+  commands:
+    eslint:
+      glob: '**/src/*.{ts,tsx,js,vue}'
+      run: npx eslint {staged_files} --fix
+      stage_fixed: true
+    prettier-fix:
+      glob: '**/src/*.{ts,tsx,js,vue,scss}'
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+    gen-cli-docs:
+      glob:
+        - 'packages/cli/src/shared_option_defs.ts'
+        - 'packages/cli/src/command_option_defs.ts'
+        - 'packages/cli/src/backend_option_defs.ts'
+        - 'packages/cli/scripts/gen_docs.ts'
+      run: |
+        bun packages/cli/scripts/gen_docs.ts
+        git add packages/cli/docs/cli-reference.md
+      stage_fixed: true
+    gen-api-extractor:
+      glob:
+        - 'package.json'
+        - 'packages/*/package.json'
+        - 'src/*/package.json'
+      run: |
+        bun scripts/generate_api_extractor_config.ts
+        git add api-extractor.json
+      stage_fixed: true
+    update-ci-node-hash:
+      glob: '{docker/ci-node/Dockerfile,mise/config.toml}'
+      run: |
+        HASH=$(cat docker/ci-node/Dockerfile mise/config.toml | sha256sum | cut -c1-16)
+        sed -i'' -e "s/CI_NODE_TAG: .*/CI_NODE_TAG: \"$HASH\"/" .gitlab-ci.yml
+        sed -i'' -e "s|ci-node:[a-f0-9]\{16\}|ci-node:$HASH|" .gitlab/duo/agent-config.yml
+        git add .gitlab-ci.yml .gitlab/duo/agent-config.yml
+      stage_fixed: true
+pre-push:
+  typescript-compiles:
+    glob: '**/src/*.ts'
+    run: bun run compile

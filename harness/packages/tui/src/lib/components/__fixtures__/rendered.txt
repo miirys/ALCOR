@@ -1,0 +1,121 @@
+# Markdown Rendering Test for Duo CLI
+
+This file tests common patterns found in Duo Chat responses. Run duo to start
+interactive mode, then prompt:
+
+print me the @example.md file
+
+Compare the CLI output against this source file to isolate rendering vs LLM
+issues.
+
+## 1. Numbered lists with tight spacing
+
+These should render without extra blank lines between items:
+
+  1. Clone the repository with git clone
+  2. Install dependencies with npm install
+  3. Run the dev server with npm run dev
+
+## 2. Nested lists and sub-bullets
+
+Watch for excessive indentation and zigzag reading patterns:
+
+  1. Set up your environment
+    * Install Node.js 18+
+    * Configure your .env file
+  2. Run the test suite
+    * Unit tests: npm test
+    * Integration tests: npm run test:integration
+  3. Deploy to staging
+    * Merge to main
+    * Verify the pipeline passes
+
+## 3. Inline code density
+
+Responses often over-apply inline code formatting. This paragraph has several
+technical terms: use the useState hook to manage state, pass props to the
+UserProfile component, and call the fetchData function inside a useEffect block.
+ The visual weight of each backticked term should not overwhelm the sentence.
+
+## 4. Code blocks after list items
+
+Code blocks nested under list items tend to get indented too far:
+
+  1. Create the config file:
+    stages:
+      - build
+      - test
+      - deploy
+  2. Add the build job:
+    build:
+      stage: build
+      script:
+        - npm ci
+
+## 5. Mixed content — explanation with code
+
+Here's how to set up a CI pipeline variable:
+
+Navigate to Settings > CI/CD > Variables and add a new variable. Set the key to
+DEPLOY_TOKEN and mark it as masked and protected.
+
+Then reference it in your .gitlab-ci.yml:
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying with token $DEPLOY_TOKEN"
+  environment:
+    name: production
+
+## 6. Short code snippets inline with text
+
+Sometimes the response includes a single command: run docker compose up -d to
+start the services. Or a file path like src/components/App.vue. These should
+feel lightweight, not like standalone blocks.
+
+## 7. Bold and emphasis for structure
+
+Responses sometimes use bold for key terms and italics for emphasis. These
+should rely on typography weight, not color, to create hierarchy.
+
+  * Required: Node.js 18+, npm 9+
+  * Optional: Docker for local Postgres
+  * Note: Windows users may need WSL2
+
+## 8. Headers as section breaks
+
+### Subheading level 3
+
+Responses use ### headers to break up multi-part answers. The visual difference
+between ## and ### should be clear without relying on color alone.
+
+#### Subheading level 4
+
+This level appears less often but should still be visually distinct.
+
+## 9. Tables (occasional in responses)
+
+┌─────────────────────────┬─────────────────────────┬─────────────────────────┐
+│ Flag                    │ Description             │ Default                 │
+├─────────────────────────┼─────────────────────────┼─────────────────────────┤
+│ --verbose               │ Enable detailed logging │ false                   │
+├─────────────────────────┼─────────────────────────┼─────────────────────────┤
+│ --dry-run               │ Preview without         │ false                   │
+│                         │ executing               │                         │
+├─────────────────────────┼─────────────────────────┼─────────────────────────┤
+│ --format                │ Output format (JSON,    │ text                    │
+│                         │ text)                   │                         │
+└─────────────────────────┴─────────────────────────┴─────────────────────────┘
+
+## 10. Long code block with syntax highlighting
+
+class MergeRequestPolicy < BasePolicy
+  condition(:can_merge) do
+    @subject.mergeable? && @user.can?(:push_code, @subject.target_project)
+  end
+
+  rule { can_merge }.enable :approve_merge_request
+
+  rule { ~can_merge }.prevent :approve_merge_request
+end

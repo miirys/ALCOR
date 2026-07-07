@@ -1,0 +1,31 @@
+out
+dist
+node_modules
+.bun-cache
+.vscode-test
+.vscode
+# Ignore .idea except for shared run configurations
+.idea/*
+!.idea/runConfigurations/
+.turbo
+bin
+rg-binaries
+
+reports/
+pkg_test
+tinyproxy.log
+.DS_Store
+tsconfig.tsbuildinfo
+tsconfig.webview.tsbuildinfo
+tmp
+mise.local.toml
+vite.config.ts.timestamp-*.mjs
+.yalc
+yalc.lock
+/*.tgz
+# Keep package-lock.json out (using bun)
+package-lock.json
+.env
+.env.local
+.env.*.local
+.dead-code/

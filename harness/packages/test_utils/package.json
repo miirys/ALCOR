@@ -1,0 +1,28 @@
+{
+  "name": "@gitlab-org/test-utils",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "browser": "./dist/browser.mjs",
+      "default": "./dist/index.mjs"
+    },
+    "./browser": {
+      "_ts-source": "./src/index_browser.ts",
+      "default": "./dist/browser.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./browser": "./dist/browser.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

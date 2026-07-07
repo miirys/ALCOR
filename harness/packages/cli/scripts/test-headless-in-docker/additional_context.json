@@ -1,0 +1,6 @@
+[
+  {
+    "Category": "agent_platform_standard_context",
+    "Content": "{\"workload_branch\":\"workloads/abcdefghi\",\"primary_branch\":\"main\",\"session_owner_id\":\"123456\"}"
+  }
+]

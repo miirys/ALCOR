@@ -1,0 +1,23 @@
+{
+  "name": "@gitlab-org/lib-pool-bridge",
+  "version": "0.8.4.3",
+  "description": "First-party, in-process GitLab Duo group-pool bridge (pool-management subset of duo-bridge). No request-path proxy.",
+  "type": "module",
+  "private": true,
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "optionalDependencies": {
+    "cloakbrowser": "^0.4.7",
+    "puppeteer-core": "^25.3.0"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@gitlab-org/ai-configuration",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "cross-spawn": "^7.0.6",
+    "undici": "^7.11.0"
+  },
+  "peerDependencies": {
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/fetch": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "@gitlab-org/persistent-storage": "0.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

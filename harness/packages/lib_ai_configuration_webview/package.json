@@ -1,0 +1,39 @@
+{
+  "name": "@gitlab-org/ai-configuration-webview",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/webview-plugin": "0.0.0"
+  },
+  "peerDependencies": {
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/message-bus": "0.0.0",
+    "@gitlab-org/webview": "0.0.0",
+    "@gitlab/needle": "2.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./contract": {
+      "_ts-source": "./src/contract/index.ts",
+      "default": "./dist/contract.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./contract": "./dist/contract.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.theme-dark *));
+@custom-variant light (&:is(.theme-light *));
+@custom-variant high-contrast (&:is(.theme-high-contrast *));
+
+@theme inline {
+  --color-background: var(--editor-background, #1e1e1e);
+  --color-foreground: var(--editor-foreground, #cccccc);
+  --color-card: var(--editor-background-alternative, #252526);
+  --color-card-foreground: var(--editor-foreground, #cccccc);
+  --color-popover: var(--editor-background-alternative, #252526);
+  --color-popover-foreground: var(--editor-foreground, #cccccc);
+  --color-primary: var(--editor-button-background, #0e639c);
+  --color-primary-foreground: var(--editor-button-foreground, #ffffff);
+  --color-secondary: var(--editor-buttonSecondary-background, #3a3d41);
+  --color-secondary-foreground: var(--editor-buttonSecondary-foreground, #ffffff);
+  --color-muted: var(--editor-background-alternative, #252526);
+  --color-muted-foreground: var(--editor-foreground-muted, rgba(204, 204, 204, 0.5));
+  --color-accent: var(--editor-background-alternative, #252526);
+  --color-accent-foreground: var(--editor-foreground, #cccccc);
+  --color-destructive: var(--editor-error-foreground, #f14c4c);
+  --color-destructive-foreground: var(--editor-error-foreground, #f14c4c);
+  --color-border: var(--editor-border-color, #303031);
+  --color-input: var(--editor-input-background, #3c3c3c);
+  --color-ring: var(--editor-input-border-focus, #007fd4);
+  --color-button: var(--editor-button-background, #0e639c);
+  --color-button-foreground: var(--editor-button-foreground, #ffffff);
+  --color-button-hover: var(--editor-button-background-hover, #1177bb);
+  --color-link-foreground: var(--editor-textLink-foreground, #3794ff);
+  --color-link-active-foreground: var(--editor-textLink-foreground-active, #3794ff);
+  --color-dropdown: var(--editor-dropdown-background, #1e1e1e);
+  --color-dropdown-foreground: var(--editor-dropdown-foreground, #cccccc);
+  --color-selection: var(--editor-selection-background, #1e1e1e);
+  --color-selection-foreground: var(--editor-list-activeSelection-foreground, #cccccc);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* Base font and sizing configuration from VS Code theme */
+  font-size: var(--editor-font-size, 13px);
+
+  /* Font families from VS Code theme */
+  --font-sans: var(--editor-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
+  --font-mono: var(--editor-code-font-family, Menlo, Monaco, 'Courier New', monospace);
+
+  /* Component-specific overrides */
+  --secondary-foreground: var(--editor-buttonSecondary-foreground, #ffffff);
+  --radius: 0.5rem;
+
+  /* Fallback theme values (will be overridden by VS Code theme) */
+  --editor-background: #1e1e1e;
+  --editor-foreground: #cccccc;
+  --editor-background-alternative: #252526;
+  --editor-border-color: #303031;
+  --editor-button-background: #0e639c;
+  --editor-button-foreground: #ffffff;
+  --editor-error-foreground: #f14c4c;
+
+}
+
+/* Override to use editor-specific input border color instead of input background */
+.border-input {
+  border-color: var(--editor-input-border, #303031);
+}
+
+/* Theme-specific styling hooks */
+.theme-dark {
+  /* Dark theme is the default, values come from VS Code */
+}
+
+.theme-light {
+  /* Light theme values come from VS Code */
+}
+
+.theme-high-contrast {
+  /* High contrast theme values come from VS Code */
+  /* Additional high contrast specific styles can be added here */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Theme for side panel webview */
+
+.side-panel {
+  background-color: var(--editor-background-alternative, #252526);
+}
+
+.side-panel .hover\:bg-accent:hover {
+    background-color: var(--editor-background, #1e1e1e);
+}
+

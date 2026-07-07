@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "outDir": "../../out/node",
+    "rootDir": "..",
+    "types": ["node", "jest"],
+    "esModuleInterop": true, // for re2
+    "strict": true,
+    "paths": {
+      "@gitlab-org/legacy-common": ["../common/index.ts"],
+      "@gitlab-org/legacy-node": ["../node/index.ts"]
+    }
+  },
+  "include": [".", "../common", "../node"],
+  "exclude": ["./fixtures"]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "projectFolder": ".",
+  "bundledPackages": [
+    "@gitlab-lsp/workflow-api",
+    "@gitlab-org/agentic-tabs",
+    "@gitlab-org/ai-configuration",
+    "@gitlab-org/ai-configuration-webview",
+    "@gitlab-org/ai-context",
+    "@gitlab-org/config",
+    "@gitlab-org/core",
+    "@gitlab-org/disposable",
+    "@gitlab-org/document",
+    "@gitlab-org/documentation",
+    "@gitlab-org/duo-feature-access",
+    "@gitlab-org/duo-plugin-marketplace",
+    "@gitlab-org/errors",
+    "@gitlab-org/feature-state",
+    "@gitlab-org/fetch",
+    "@gitlab-org/flow-builder",
+    "@gitlab-org/fs",
+    "@gitlab-org/graphql",
+    "@gitlab-org/handler-registry",
+    "@gitlab-org/hooks",
+    "@gitlab-org/knowledge-graph",
+    "@gitlab-org/language-server-webview",
+    "@gitlab-org/legacy-browser",
+    "@gitlab-org/legacy-common",
+    "@gitlab-org/legacy-node",
+    "@gitlab-org/lib-agentic-duo-chat",
+    "@gitlab-org/lib-duo-agent-platform",
+    "@gitlab-org/logging",
+    "@gitlab-org/message-bus",
+    "@gitlab-org/persistent-storage",
+    "@gitlab-org/repositories",
+    "@gitlab-org/request-context",
+    "@gitlab-org/resiliency",
+    "@gitlab-org/rpc",
+    "@gitlab-org/rpc-client",
+    "@gitlab-org/rpc-endpoint",
+    "@gitlab-org/rpc-endpoint-lsp-adapter",
+    "@gitlab-org/rpc-validation",
+    "@gitlab-org/sandbox",
+    "@gitlab-org/schema",
+    "@gitlab-org/secret-redaction",
+    "@gitlab-org/telemetry",
+    "@gitlab-org/test-utils",
+    "@gitlab-org/tool-approval",
+    "@gitlab-org/tui",
+    "@gitlab-org/vite-common-config",
+    "@gitlab-org/webview",
+    "@gitlab-org/webview-client",
+    "@gitlab-org/webview-duo-chat-classic",
+    "@gitlab-org/webview-gitlab-connection",
+    "@gitlab-org/webview-plugin",
+    "@gitlab-org/webview-theme",
+    "@gitlab-org/webview-theming",
+    "@gitlab-org/webview-transport",
+    "@gitlab-org/webview-transport-json-rpc",
+    "@gitlab-org/webview-transport-socket-io",
+    "@gitlab-org/webview-vuln-details",
+    "@gitlab-org/workflow-executor"
+  ],
+  "mainEntryPointFilePath": "./src/common/dist/index.d.ts",
+  "newlineKind": "lf",
+  "compiler": {
+    "tsconfigFilePath": "./tsconfig.shared.json",
+    "overrideTsconfig": {
+      "extends": "./tsconfig.shared.json",
+      "compilerOptions": {
+        "customConditions": []
+      }
+    }
+  },
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": {
+    "enabled": false
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "untrimmedFilePath": "./out/gitlab-lsp.d.ts",
+    "omitTrimmingComments": false
+  },
+  "tsdocMetadata": {
+    "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    },
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      },
+      "ae-wrong-input-file-type": {
+        "logLevel": "error"
+      }
+    },
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "none"
+      }
+    }
+  }
+}

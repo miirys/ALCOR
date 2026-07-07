@@ -1,0 +1,107 @@
+/*
+  VSCode specific styling for scrollbar
+  TODO: detect editor and apply different styling
+*/
+::-webkit-scrollbar {
+  background: var(--editor-background, #1e1e1e);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--editor-scrollbarSlider-background, #cccccc);
+  border-radius: 0;
+}
+
+/*
+  Syntax-highlight palette for highlight.js token classes.
+*/
+.hljs-block {
+  --hljs-comment: #5c6370;
+  --hljs-keyword: #c678dd;
+  --hljs-name: #e06c75;
+  --hljs-literal: #56b6c2;
+  --hljs-string: #98c379;
+  --hljs-number: #d19a66;
+  --hljs-symbol: #61aeee;
+  --hljs-built-in: #e6c07b;
+}
+
+.theme-light .hljs-block {
+  --hljs-comment: #a0a1a7;
+  --hljs-keyword: #a626a4;
+  --hljs-name: #e45649;
+  --hljs-literal: #0184bb;
+  --hljs-string: #50a14f;
+  --hljs-number: #986801;
+  --hljs-symbol: #4078f2;
+  --hljs-built-in: #c18401;
+}
+
+.hljs-block .hljs-comment,
+.hljs-block .hljs-quote {
+  color: var(--hljs-comment);
+  font-style: italic;
+}
+
+.hljs-block .hljs-doctag,
+.hljs-block .hljs-keyword,
+.hljs-block .hljs-formula {
+  color: var(--hljs-keyword);
+}
+
+.hljs-block .hljs-section,
+.hljs-block .hljs-name,
+.hljs-block .hljs-selector-tag,
+.hljs-block .hljs-deletion,
+.hljs-block .hljs-subst {
+  color: var(--hljs-name);
+}
+
+.hljs-block .hljs-literal {
+  color: var(--hljs-literal);
+}
+
+.hljs-block .hljs-string,
+.hljs-block .hljs-regexp,
+.hljs-block .hljs-addition,
+.hljs-block .hljs-attribute,
+.hljs-block .hljs-meta .hljs-string {
+  color: var(--hljs-string);
+}
+
+.hljs-block .hljs-attr,
+.hljs-block .hljs-variable,
+.hljs-block .hljs-template-variable,
+.hljs-block .hljs-type,
+.hljs-block .hljs-selector-class,
+.hljs-block .hljs-selector-attr,
+.hljs-block .hljs-selector-pseudo,
+.hljs-block .hljs-number {
+  color: var(--hljs-number);
+}
+
+.hljs-block .hljs-symbol,
+.hljs-block .hljs-bullet,
+.hljs-block .hljs-link,
+.hljs-block .hljs-meta,
+.hljs-block .hljs-selector-id,
+.hljs-block .hljs-title {
+  color: var(--hljs-symbol);
+}
+
+.hljs-block .hljs-built_in,
+.hljs-block .hljs-title.class_,
+.hljs-block .hljs-class .hljs-title {
+  color: var(--hljs-built-in);
+}
+
+.hljs-block .hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-block .hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-block .hljs-link {
+  text-decoration: underline;
+}

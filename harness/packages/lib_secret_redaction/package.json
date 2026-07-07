@@ -1,0 +1,32 @@
+{
+  "name": "@gitlab-org/secret-redaction",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@gitlab/needle": "2.0.0",
+    "@gitlab-org/document": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@monyone/aho-corasick": "^1.1.10",
+    "vscode-languageserver-protocol": "^3.17.5"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

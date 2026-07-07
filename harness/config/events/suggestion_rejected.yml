@@ -1,0 +1,10 @@
+---
+description: Tracks when a user does not accept a suggestion in the IDE.
+action: suggestion_rejected
+product_group: editor_extensions
+milestone: '16.10'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/237
+tiers:
+- premium
+- ultimate

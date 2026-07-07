@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "lib": ["DOM", "es2022"],
+    "noEmit": true,
+    "allowJs": true
+  },
+  "include": ["src/app/**/*", "src/gitlab__ui.d.ts"]
+}

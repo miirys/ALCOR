@@ -1,0 +1,14 @@
+{
+  "name": "@gitlab-org/hooks",
+  "version": "0.0.0",
+  "private": "true",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@gitlab/needle": "2.0.0",
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/persistent-storage": "0.0.0",
+    "zod": "^4.4.1"
+  },
+  "scripts": {}
+}

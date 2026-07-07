@@ -1,0 +1,10 @@
+---
+description: Tracks when a suggestion request is rejected in the IDE.
+action: suggestion_request_rejected
+product_group: editor_extensions
+milestone: '16.7'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1149
+tiers:
+- premium
+- ultimate

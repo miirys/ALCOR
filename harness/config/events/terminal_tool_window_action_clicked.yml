@@ -1,0 +1,13 @@
+---
+description: Tracks when a user initiates an action to explain terminal output from the context menu.
+action: terminal_tool_window_action_clicked
+product_group: editor_extensions
+milestone: '18.1'
+classification: duo
+additional_properties:
+  label:
+    description: explain
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/1711
+tiers:
+- premium
+- ultimate

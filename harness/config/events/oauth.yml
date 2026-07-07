@@ -1,0 +1,10 @@
+---
+description: Tracks when a user is authenticated using oauth.
+action: oauth
+product_group: editor_extensions
+milestone: '17.7'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/1047
+tiers:
+- premium
+- ultimate

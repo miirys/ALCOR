@@ -1,0 +1,49 @@
+{
+  "name": "@gitlab-org/ai-context",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@gitlab-org/ai-configuration": "0.0.0",
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/document": "0.0.0",
+    "@gitlab-org/duo-feature-access": "0.0.0",
+    "@gitlab-org/fs": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/repositories": "0.0.0",
+    "@gitlab-org/secret-redaction": "0.0.0",
+    "yaml": "^2.5.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@gitlab-org/test-utils": "0.0.0",
+    "@gitlab-org/webview": "0.0.0"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "_ts-source": "./src/node/index.ts",
+      "default": "./dist/node.mjs"
+    },
+    "./test_utils": {
+      "_ts-source": "./src/test_utils/mock_data.ts",
+      "default": "./dist/test_utils.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./node": "./dist/node.mjs",
+      "./test_utils": "./dist/test_utils.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": [
+    "./src/**/*",
+    "./src/**/*.tsx",
+    "./jest.setup.ts",
+    "./test/**/*",
+    "jest.e2e.config.js"
+  ],
+  "exclude": ["./src/sandbox_worker.ts", "./test/e2e/network/spikes/**"],
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "composite": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true
+  }
+}

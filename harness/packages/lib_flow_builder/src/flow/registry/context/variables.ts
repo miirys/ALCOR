@@ -1,0 +1,88 @@
+import type { RuntimeProvidedVariableDefinition } from './types';
+
+export const RUNTIME_PROVIDED_VARIABLE_DEFINITIONS: RuntimeProvidedVariableDefinition[] = [
+  {
+    key: 'goal',
+    label: 'Workflow Goal',
+    description: 'The user-provided goal for this workflow execution',
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'project_id',
+    label: 'Project ID',
+    description: 'GitLab numeric project ID',
+    type: 'integer',
+    availability: 'always',
+  },
+  {
+    key: 'project_http_url_to_repo',
+    label: 'Repository HTTP URL',
+    description: 'HTTP URL for cloning the repository',
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'project_default_branch',
+    label: 'Default Branch',
+    description: 'Default branch of the repository',
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'current_date',
+    label: 'Current Date',
+    description: 'Current date in YYYY-MM-DD format',
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'workflow_id',
+    label: 'Workflow ID',
+    description: 'Unique identifier for this workflow execution',
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'session_url',
+    label: 'Session URL',
+    description: "URL to this session's page in GitLab",
+    type: 'string',
+    availability: 'always',
+  },
+  {
+    key: 'inputs.os_information',
+    label: 'OS Information',
+    description: 'Operating system information from the executor environment',
+    type: 'string',
+    availability: 'conditional',
+  },
+  {
+    key: 'inputs.shell_information',
+    label: 'Shell Information',
+    description: 'Shell information from the executor environment',
+    type: 'string',
+    availability: 'conditional',
+  },
+  {
+    key: 'inputs.agent_user_environment',
+    label: 'Agent User Environment',
+    description: 'Agent user environment configuration',
+    type: 'string',
+    availability: 'conditional',
+  },
+  {
+    key: 'inputs.user_rule',
+    label: 'User Rule',
+    description: 'Custom user rules from the executor environment',
+    type: 'string',
+    availability: 'conditional',
+  },
+  {
+    key: 'inputs.workspace_agent_skills',
+    label: 'Workspace Agent Skills',
+    description: 'Workspace agent skills configuration',
+    type: 'string',
+    availability: 'conditional',
+  },
+];

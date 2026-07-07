@@ -1,0 +1,28 @@
+{
+  "name": "@gitlab-org/tool-approval",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/graphql": "0.0.0",
+    "@gitlab-org/ai-configuration": "0.0.0"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

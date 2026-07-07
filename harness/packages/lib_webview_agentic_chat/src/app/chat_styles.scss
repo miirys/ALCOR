@@ -1,0 +1,873 @@
+@import '@gitlab/ui/src/scss/gitlab_ui';
+@import '@gitlab/duo-ui/src/scss/components';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Variables and root-level styles
+:root {
+  --font-family: var(--editor-font-family);
+  --glDuoChat-font-family-code: var(--editor-code-font-family); // --monaco-monospace-font
+
+  --glDuoChat-foreground: var(--editor-foreground);
+  --glDuoChat-foreground-muted: var(--editor-foreground-muted);
+  --glDuoChat-foreground-disabled: var(--editor-foreground-disabled);
+
+  --gl-text-color-default: var(--editor-foreground);
+  --gl-text-color-subtle: var(--editor-foreground);
+  --gl-text-color-strong: var(--editor-foreground);
+  --gl-text-color-heading: var(--gl-text-color-strong);
+
+  --gl-background-color-default: var(--editor-background-alternative);
+  --gl-background-color-subtle: var(--editor-background);
+  --gl-background-color-strong: color-mix(in srgb, var(--editor-background-alternative), black 20%);
+  --gl-background-color-section: var(--editor-background-alternative);
+  --glDuoChat-background: var(--editor-background-alternative);
+  --glDuoChat-background-alternative: var(--editor-background-alternative);
+  --glDuoChat-textPreformat-background: var(--editor-textPreformat-background);
+
+  --gl-border-color-default: var(--editor-border-color);
+  --gl-border-color-strong: var(--editor-border-color);
+  --glDuoChat-border-color: var(--editor-border-color);
+  --glDuoChat-shadow: var(--editor-widget-shadow);
+
+  --glDuoChat-alert-foreground: var(--editor-alert-foreground);
+  --glDuoChat-alert-background: var(--editor-alert-background);
+  --glDuoChat-alert-border-color: var(--editor-alert-border-color);
+
+  --glDuoChat-border-radius: 2px;
+  --glDuoChat-feedback-alert-color: var(--editor-alert-foreground);
+  --glDuoChat-error-foreground: var(--editor-error-foreground);
+
+  --gl-border-color-section: var(--editor-border-color);
+
+  --gl-feedback-danger-icon-color: var(--glDuoChat-error-foreground);
+  --gl-alert-danger-title-color: var(--glDuoChat-error-foreground);
+
+  --gl-background-color-overlap: rgb(
+    from var(--editor-token-background) r g b / 1
+  ); // prevent transparency / alpha from theme variable being applied to background
+  --glDuoChat-popover-foreground: var(--editor-token-foreground);
+  --glDuoChat-token-foreground: var(--editor-token-foreground);
+  --glDuoChat-token-background: var(--editor-token-background);
+
+  --gl-badge-neutral-text-color-default: var(--editor-token-foreground);
+  --gl-badge-neutral-background-color-default: var(--editor-token-background);
+
+  --glDuoChat-icon-foreground: var(--editor-icon-foreground);
+
+  --glDuoChat-textLink-foreground: var(--editor-textLink-foreground);
+  --glDuoChat-textLink-foreground-active: var(--editor-textLink-foreground-active);
+  --glDuoChat-textPreformat-foreground: var(--editor-textPreformat-foreground);
+
+  --glDuoChat-input-border: var(--editor-input-border);
+  --glDuoChat-input-background: var(--editor-input-background);
+  --glDuoChat-input-foreground: var(--editor-input-foreground);
+  --glDuoChat-input-placeholder-foreground: var(--editor-input-placeholder-foreground);
+  --glDuoChat-input-border-focus: var(--editor-input-border-focus);
+  --glDuoChat-input-background-focus: var(--editor-input-background-focus);
+  --glDuoChat-input-foreground-focus: var(--editor-input-foreground-focus);
+
+  --glDuoChat-checkbox-background: var(--editor-checkbox-background);
+  --glDuoChat-checkbox-border: var(--editor-checkbox-border);
+  --glDuoChat-checkbox-background-selected: var(--editor-checkbox-background-selected);
+  --glDuoChat-checkbox-border-selected: var(--editor-checkbox-border-selected);
+
+  --glDuoChat-list-background: var(--editor-dropdown-background);
+  --glDuoChat-list-foreground: var(--editor-dropdown-foreground);
+  --glDuoChat-list-border: var(--editor-dropdown-border);
+  --glDuoChat-list-background-active: var(--editor-list-activeSelection-background);
+  --glDuoChat-list-foreground-active: var(--editor-list-activeSelection-foreground);
+
+  --gl-skeleton-loader-background-color: color-mix(
+    in srgb,
+    var(--glDuoChat-foreground-muted) 60%,
+    transparent
+  );
+  --gl-skeleton-loader-shimmer-color: color-mix(
+    in srgb,
+    var(--glDuoChat-foreground) 60%,
+    transparent
+  );
+
+  // User message styled via these tokens
+  --gl-feedback-info-text-color: var(--editor-list-activeSelection-foreground);
+  --gl-feedback-info-background-color: var(--editor-selection-background);
+
+  // Style dropdown text
+  --gl-dropdown-background-color: var(--editor-background);
+
+  --gl-dropdown-option-text-color-active: var(--editor-list-activeSelection-foreground);
+  --gl-dropdown-option-text-color-default: var(--editor-foreground);
+  --gl-dropdown-option-text-color-hover: var(--editor-foreground);
+  --gl-dropdown-option-text-color-focus: var(--editor-list-activeSelection-foreground);
+
+  --gl-dropdown-option-indicator-color-selected-active: var(--gl-badge-info-icon-color-default);
+  --gl-dropdown-option-indicator-color-selected-default: color-mix(
+    in srgb,
+    var(--gl-badge-info-icon-color-default) 60%,
+    transparent
+  );
+  --gl-dropdown-option-indicator-color-selected-focus: var(--gl-badge-info-icon-color-default);
+  --gl-dropdown-option-indicator-color-selected-hover: var(--gl-badge-info-icon-color-default);
+
+  --gl-dropdown-option-background-color-selected-active: var(
+    --editor-list-activeSelection-background
+  );
+  --gl-dropdown-option-background-color-selected-default: color-mix(
+    in srgb,
+    var(--editor-list-activeSelection-background) 60%,
+    transparent
+  );
+  --gl-dropdown-option-background-color-selected-focus: var(
+    --editor-list-activeSelection-background
+  );
+  --gl-dropdown-option-background-color-selected-hover: var(
+    --editor-list-activeSelection-background
+  );
+
+  --gl-dropdown-option-background-color-unselected-active: color-mix(
+    in srgb,
+    var(--editor-list-activeSelection-background) 60%,
+    transparent
+  );
+  --gl-dropdown-option-background-color-unselected-default: var(--editor-background);
+  --gl-dropdown-option-background-color-unselected-focus: color-mix(
+    in srgb,
+    var(--editor-list-activeSelection-background) 60%,
+    transparent
+  );
+  --gl-dropdown-option-background-color-unselected-hover: color-mix(
+    in srgb,
+    var(--editor-list-activeSelection-background) 60%,
+    transparent
+  );
+
+  // buttons customization
+  --glDuoChat-button-foreground: var(--editor-button-foreground);
+  --glDuoChat-button-background: var(--editor-button-background);
+  --glDuoChat-button-border: var(--editor-button-border);
+  --glDuoChat-button-background-hover: var(--editor-button-background-hover);
+
+  --glDuoChat-buttonSecondary-foreground: var(--editor-buttonSecondary-foreground);
+  --glDuoChat-buttonSecondary-background: var(--editor-buttonSecondary-background);
+  --glDuoChat-buttonSecondary-background-hover: var(--editor-buttonSecondary-background-hover);
+
+  --gl-button-default-primary-background-color-default: var(--glDuoChat-buttonSecondary-background);
+  --gl-button-default-primary-foreground-color-default: var(--glDuoChat-buttonSecondary-foreground);
+  --gl-button-default-primary-background-color-hover: var(
+    --glDuoChat-buttonSecondary-background-hover
+  );
+  --gl-button-default-primary-background-color-active: var(
+    --glDuoChat-buttonSecondary-background-hover
+  );
+  --gl-button-default-primary-background-color-focus: var(
+    --glDuoChat-buttonSecondary-background-hover
+  );
+  --gl-button-default-primary-border-color-default: var(--glDuoChat-button-border);
+  --gl-button-disabled-background-color: var(--gl-button-default-primary-background-color-default);
+  --gl-button-disabled-foreground-color: var(--gl-button-default-primary-foreground-color-default);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  @apply gl-p-0;
+  background-color: var(--gl-background-color-default);
+  font-size: var(--editor-font-size);
+  color: var(--editor-foreground);
+  line-height: 1rem;
+  height: 100%;
+}
+
+h2,
+h3,
+h4 {
+  margin-bottom: var(--gl-spacing-scale-3);
+}
+
+h2 {
+  font-size: 1.3rem;
+}
+
+h3 {
+  font-size: 1.15rem;
+}
+
+h4 {
+  font-size: 1.1rem;
+}
+
+.hidden-svg-container {
+  display: none;
+}
+
+.duo-chat-drawer {
+  font-size: inherit;
+}
+
+.gl-sr-only {
+  /*
+   NOTE: The original styles coming from Duo UI use absolute positioning
+   and negative margins to make screen-reader only text hidden
+   and this approach breaks the viewport boundary calculations in Chromium
+   which causes a vertical scrollbar to appear in agentic chat. Switching
+   to fixed positioning fixes this bug.
+  */
+  position: fixed;
+}
+
+.health-check-refresh-button.btn.gl-button.btn-default,
+.health-check-refresh-button.btn.gl-button.btn-default:hover {
+  box-shadow: none;
+}
+
+a,
+.gl-link {
+  @extend %link-colors;
+}
+%link-colors {
+  color: var(--glDuoChat-textLink-foreground);
+  &:hover {
+    color: var(--glDuoChat-textLink-foreground);
+  }
+  &:focus,
+  &:active:focus {
+    @apply gl-shadow-none;
+    @apply gl-no-underline;
+    color: var(--glDuoChat-textLink-foreground-active);
+  }
+}
+.duo-chat {
+  @apply position-static;
+}
+// This `.duo-chat-message` style overrides the gitlab-ui style for chat message that's ATM incompatible with VS Code
+.duo-chat-message pre {
+  @apply gl-shadow-none;
+  background-color: var(--glDuoChat-textPreformat-background);
+  color: var(--glDuoChat-textPreformat-foreground);
+  border-radius: var(--glDuoChat-border-radius);
+  border-color: var(--glDuoChat-border-color);
+}
+
+.duo-chat-message pre.scrim-top:before {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+}
+
+.duo-chat-message pre.scrim-bottom:after {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+}
+
+.duo-chat-message .code,
+.duo-chat-message code {
+  background-color: var(--glDuoChat-textPreformat-background);
+  color: var(--glDuoChat-textPreformat-foreground);
+}
+
+// gitlab-ui utils overrides
+.gl-animate-skeleton-loader {
+  background-color: var(--gl-skeleton-loader-background-color);
+
+  background-image: linear-gradient(
+    to right,
+    var(--gl-skeleton-loader-background-color) 0,
+    var(--gl-skeleton-loader-shimmer-color) 23%,
+    var(--gl-skeleton-loader-shimmer-color) 27%,
+    var(--gl-skeleton-loader-background-color) 50%
+  );
+}
+.gl-alert-body {
+  color: var(--glDuoChat-feedback-alert-color);
+}
+
+.duo-chat-message-with-error {
+  color: var(--glDuoChat-error-foreground) !important;
+  border-color: var(--glDuoChat-error-foreground) !important;
+  border-style: solid !important;
+  background: var(--vscode-editor-background);
+
+  .error-icon {
+    border-color: var(--glDuoChat-error-foreground);
+    --glDuoChat-icon-foreground: var(--glDuoChat-error-foreground);
+  }
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+.gl-token {
+  color: var(--glDuoChat-token-foreground);
+  background-color: var(--glDuoChat-token-background);
+  border-radius: var(--glDuoChat-border-radius);
+  border-color: var(--glDuoChat-border-color);
+
+  .gl-token-content .gl-icon {
+    color: var(--glDuoChat-token-foreground);
+  }
+}
+.gl-popover {
+  .popover-header,
+  .popover-body,
+  .gl-text-subtle {
+    color: var(--glDuoChat-popover-foreground);
+  }
+
+  .gl-fill-icon-subtle {
+    fill: var(--glDuoChat-popover-foreground);
+  }
+}
+
+// TODO: Remove .gl-drawer once @gitlab/ui is upgraded to v87 or later.
+// https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1760#note_2022529088
+.gl-drawer .gl-drawer-header-sticky,
+.duo-chat-drawer .duo-chat-drawer-header-sticky {
+  background-color: var(--glDuoChat-background-alternative);
+}
+.drawer-title {
+  @apply gl-hidden;
+}
+.gl-bg-gray-10 {
+  background: var(--glDuoChat-background);
+}
+.gl-bg-gray-50 {
+  background: var(--glDuoChat-alert-background);
+}
+.gl-text-gray-700 {
+  color: var(--glDuoChat-alert-foreground);
+}
+.gl-border-t {
+  border-color: var(--glDuoChat-border-color);
+}
+.gl-rounded-bottom-right-none {
+  @apply gl-rounded-br-none;
+}
+.gl-rounded-bottom-left-none {
+  @apply gl-rounded-bl-none;
+}
+.gl-rounded-top-left-none {
+  @apply gl-rounded-tl-none;
+}
+.gl-rounded-top-right-none {
+  @apply gl-rounded-tr-none;
+}
+.gl-bg-white {
+  background: var(--glDuoChat-background);
+}
+.gl-inset-border-1-gray-400 {
+  box-shadow: inset 0 0 0 1px var(--glDuoChat-input-border);
+  &:focus-within {
+    @apply gl-shadow-none;
+    outline: 1px solid var(--glDuoChat-input-border-focus);
+  }
+}
+
+.gl-button .gl-icon {
+  color: inherit;
+}
+
+.gl-button.btn-link .gl-icon {
+  color: inherit;
+}
+
+.gl-button.gl-button.btn-dashed,
+.gl-button.gl-button.btn-block.btn-dashed {
+  background-color: var(--glDuoChat-button-background);
+  color: var(--glDuoChat-button-foreground);
+  .gl-icon {
+    color: var(--glDuoChat-button-foreground);
+  }
+  &:hover,
+  &:focus {
+    background: var(--glDuoChat-button-background);
+    color: var(--glDuoChat-button-foreground);
+    .gl-icon {
+      color: var(--glDuoChat-button-foreground);
+    }
+  }
+}
+
+.gl-button.gl-button.btn-confirm-secondary {
+  background: var(--glDuoChat-buttonSecondary-background);
+  color: var(--glDuoChat-buttonSecondary-foreground);
+  // hover background as secondary button default border:
+  border-color: var(--glDuoChat-buttonSecondary-background-hover);
+  &:focus,
+  &:hover,
+  &:active:focus {
+    background: var(--glDuoChat-buttonSecondary-background-hover);
+    color: var(--glDuoChat-buttonSecondary-foreground);
+    // non-hover background as secondary button hover border:
+    border-color: var(--glDuoChat-buttonSecondary-background);
+  }
+}
+
+.gl-button.gl-button.btn-confirm {
+  background: var(--glDuoChat-button-background);
+  color: var(--glDuoChat-button-foreground);
+  border-color: var(--glDuoChat-button-border);
+  &:focus,
+  &:hover,
+  &:active:focus {
+    background: var(--glDuoChat-button-background-hover);
+    color: var(--glDuoChat-button-foreground);
+    border-color: var(--glDuoChat-input-border-focus);
+  }
+}
+.gl-button.gl-button.btn-link {
+  @extend %link-colors;
+}
+.gl-button.gl-button.btn-default-tertiary,
+.gl-button.gl-button.btn-dashed-tertiary,
+.gl-button.gl-button.btn-confirm-tertiary,
+.gl-button.gl-button.btn-info-tertiary,
+.gl-button.gl-button.btn-success-tertiary,
+.gl-button.gl-button.btn-danger-tertiary,
+.gl-button.gl-button.btn-block.btn-default-tertiary,
+.gl-button.gl-button.btn-block.btn-dashed-tertiary,
+.gl-button.gl-button.btn-block.btn-confirm-tertiary,
+.gl-button.gl-button.btn-block.btn-info-tertiary,
+.gl-button.gl-button.btn-block.btn-success-tertiary,
+.gl-button.gl-button.btn-block.btn-danger-tertiary {
+  mix-blend-mode: normal;
+}
+
+.gl-button.btn-default.gl-button.gl-button.btn-default-tertiary {
+  .gl-icon {
+    color: var(--glDuoChat-icon-foreground);
+  }
+
+  &:hover {
+    background-color: var(--editor-buttonSecondary-background-hover);
+
+    .gl-icon {
+      color: var(--glDuoChat-buttonSecondary-foreground);
+    }
+  }
+}
+
+.gl-button.gl-button.disabled,
+.gl-button.gl-button.disabled:hover,
+.gl-button.gl-button.disabled:focus {
+  opacity: 0.65;
+}
+
+.text-muted {
+  color: var(--glDuoChat-foreground-muted) !important;
+}
+.gl-text-blue-900 {
+  color: var(--glDuoChat-foreground);
+}
+.gl-bg-blue-100 {
+  background: var(--glDuoChat-background-alternative);
+}
+.gl-text-blue-700,
+.gl-text-gray-500 {
+  color: var(--glDuoChat-foreground-muted);
+}
+.gl-text-gray-600 {
+  color: var(--glDuoChat-foreground);
+}
+.gl-text-gray-900 {
+  color: var(--glDuoChat-foreground);
+  &:active {
+    color: var(--glDuoChat-foreground);
+  }
+}
+.gl-border-gray-50 {
+  border-color: var(--glDuoChat-border-color);
+}
+.gl-markdown {
+  color: var(--glDuoChat-foreground);
+  font-family: var(--font-family);
+  code {
+    background: var(--glDuoChat-textPreformat-background);
+    color: var(--glDuoChat-textPreformat-foreground);
+    font-family: var(--glDuoChat-font-family-code);
+    border-radius: 4px;
+  }
+  pre code {
+    @apply gl-bg-transparent;
+    color: var(--glDuoChat-textPreformat-foreground);
+  }
+  &:first-child {
+    pre {
+      @apply gl-mt-0;
+    }
+  }
+}
+.gl-modal {
+  color: var(--glDuoChat-foreground);
+  .modal-content {
+    background-color: var(--glDuoChat-background-alternative);
+    border-color: var(--glDuoChat-border-color);
+    border-radius: var(--glDuoChat-border-radius);
+    box-shadow: 0 4px 16px var(--glDuoChat-shadow);
+  }
+  .modal-header {
+    background-color: var(--glDuoChat-background-alternative);
+    & > :first-child {
+      border-top-left-radius: 2px;
+      border-top-right-radius: 2px;
+    }
+  }
+  .modal-body {
+    background-color: var(--glDuoChat-background-alternative);
+  }
+}
+.gl-form-checkbox,
+.gl-form-radio {
+  color: var(--glDuoChat-foreground);
+}
+.gl-form-input,
+.gl-form-input.form-control {
+  background: var(--glDuoChat-input-background);
+  color: var(--glDuoChat-input-foreground);
+  box-shadow: inset 0 0 0 1px var(--glDuoChat-input-border);
+  &:focus,
+  &:not(.form-control-plaintext):focus {
+    background: var(--glDuoChat-input-background-focus);
+    color: var(--glDuoChat-input-foreground-focus);
+    box-shadow: inset 0 0 0 1px var(--glDuoChat-input-border-focus);
+  }
+  &::placeholder {
+    color: var(--glDuoChat-input-placeholder-foreground);
+  }
+}
+
+.modal-backdrop {
+  opacity: 1;
+  background-color: var(--glDuoChat-shadow);
+}
+.gl-form-checkbox,
+.gl-form-radio {
+  &.custom-control {
+    .custom-control-input ~ .custom-control-label {
+      &::before {
+        border-color: var(--glDuoChat-checkbox-border);
+        background-color: var(--glDuoChat-checkbox-background);
+      }
+    }
+
+    .custom-control-input:not(:disabled):focus ~ .custom-control-label {
+      &::before {
+        @apply gl-shadow-none;
+        border-color: var(--glDuoChat-checkbox-border);
+      }
+    }
+
+    .custom-control-input:checked ~ .custom-control-label {
+      &::before {
+        border-color: var(--glDuoChat-checkbox-border-selected);
+        background-color: var(--glDuoChat-checkbox-background-selected);
+      }
+    }
+
+    .custom-control-input[type='checkbox']:checked ~ .custom-control-label,
+    .custom-control-input[type='checkbox']:indeterminate ~ .custom-control-label,
+    .custom-control-input[type='radio']:checked ~ .custom-control-label {
+      &::after {
+        mask-image: none;
+        background-color: var(--glDuoChat-button-background);
+        border-radius: var(--glDuoChat-border-radius);
+      }
+    }
+
+    .custom-control-input:not(:disabled):checked ~ .custom-control-label:hover,
+    .custom-control-input:not(:disabled):focus:checked ~ .custom-control-label {
+      &::before {
+        background-color: var(--glDuoChat-checkbox-background-selected);
+        border-color: var(--glDuoChat-checkbox-border-selected);
+      }
+    }
+
+    &.custom-checkbox {
+      .custom-control-input:indeterminate ~ .custom-control-label::before {
+        background-color: var(--glDuoChat-checkbox-background-selected);
+        border-color: var(--glDuoChat-checkbox-border-selected);
+      }
+
+      .custom-control-input:not(:disabled):indeterminate ~ .custom-control-label:hover::before,
+      .custom-control-input:not(:disabled):focus:indeterminate ~ .custom-control-label::before {
+        background-color: var(--glDuoChat-checkbox-background-selected);
+        border-color: var(--glDuoChat-checkbox-border-selected);
+      }
+    }
+
+    .custom-control-input:disabled ~ .custom-control-label {
+      &::before {
+        background-color: var(--glDuoChat-foreground-disabled);
+        border-color: var(--glDuoChat-checkbox-border-selected);
+      }
+    }
+
+    .custom-control-input:checked:disabled ~ .custom-control-label,
+    .custom-control-input[type='checkbox']:indeterminate:disabled ~ .custom-control-label {
+      &::before {
+        background-color: var(--glDuoChat-checkbox-background-selected);
+        border-color: var(--glDuoChat-checkbox-border-selected);
+      }
+
+      &::after {
+        background-color: var(--glDuoChat-foreground-disabled);
+      }
+    }
+  }
+}
+.modal-dialog {
+  @apply gl-mr-5;
+  @apply gl-ml-5;
+}
+.gl-modal {
+  .modal-footer {
+    @include media-breakpoint-down(xs) {
+      @apply gl-flex-row;
+
+      .btn + .btn:not(.dropdown-toggle-split),
+      .btn + .btn-group,
+      .btn-group + .btn {
+        @apply gl-ml-3;
+        @apply gl-mt-0;
+      }
+    }
+  }
+}
+
+// Components
+.duo-chat {
+  @apply gl-border-none;
+  font-family: var(--font-family);
+  color: var(--glDuoChat-foreground);
+}
+.duo-chat-input {
+  background: var(--glDuoChat-input-background);
+  color: var(--glDuoChat-input-foreground);
+
+  .gl-form-input:not(.form-control-plaintext) {
+    &:focus {
+      color: var(--glDuoChat-input-foreground);
+    }
+  }
+}
+.duo-chat .gl-drawer-body-scrim-on-footer:before {
+  background: transparent;
+}
+.duo-chat-loader {
+  color: var(--glDuoChat-foreground);
+}
+.duo-chat .duo-chat-drawer-body-scrim-on-footer {
+  &::before {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--glDuoChat-background));
+  }
+}
+.legal-warning {
+  @apply gl-border-t-0;
+  background: var(--glDuoChat-alert-background);
+  color: var(--glDuoChat-alert-foreground);
+  border-color: var(--glDuoChat-alert-border-color);
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+
+  .gl-alert-body {
+    color: var(--glDuoChat-alert-foreground);
+  }
+}
+.duo-chat {
+  copy-code [role='tooltip'],
+  insert-code-snippet [role='tooltip'] {
+    background-color: var(--gl-background-color-strong);
+    color: var(--gl-text-color-default);
+  }
+}
+
+.slash-commands {
+  background-color: var(--glDuoChat-list-background);
+  border-color: var(--glDuoChat-list-border);
+
+  button.dropdown-item {
+    color: var(--glDuoChat-list-foreground);
+
+    &:hover {
+      color: var(--glDuoChat-list-foreground-active) !important;
+    }
+  }
+
+  .active-command {
+    background-color: var(--glDuoChat-list-background-active);
+
+    button.dropdown-item {
+      color: var(--glDuoChat-list-foreground-active);
+
+      small {
+        color: var(--glDuoChat-list-foreground-active);
+      }
+    }
+
+    .gl-text-secondary {
+      color: var(--glDuoChat-list-foreground-active);
+    }
+  }
+
+  .gl-icon {
+    color: inherit;
+  }
+}
+
+.workflow-row-goal {
+  min-width: 0;
+  word-wrap: break-word;
+}
+
+.chat-history-wrapper {
+  .gl-accordion-item-header {
+    .gl-button.gl-button.btn-link {
+      color: var(--glDuoChat-foreground);
+      border-top: 1px solid var(--glDuoChat-border-color);
+
+      &:focus,
+      &:hover,
+      &:active {
+        background-color: var(--glDuoChat-buttonSecondary-background);
+        color: var(--glDuoChat-buttonSecondary-foreground);
+      }
+    }
+  }
+  > .collapse {
+    @apply gl-ml-0;
+  }
+}
+.chat-history-list {
+  li {
+    &:focus,
+    &:hover,
+    &:active {
+      background-color: var(--glDuoChat-buttonSecondary-background);
+      color: var(--glDuoChat-buttonSecondary-foreground);
+
+      a:hover {
+        color: var(--glDuoChat-buttonSecondary-foreground);
+      }
+
+      .row-actions {
+        time {
+          visibility: hidden;
+        }
+        button {
+          display: block !important;
+          right: 0;
+        }
+      }
+    }
+  }
+}
+
+.chat-nav-bar {
+  .gl-button.gl-dropdown-toggle.btn-default-tertiary,
+  .gl-button.gl-new-dropdown-toggle.btn-default-tertiary {
+    min-width: auto;
+    min-height: auto;
+    padding: 0.25rem !important;
+    background-color: inherit;
+    color: var(--glDuoChat-icon-foreground);
+
+    .gl-icon {
+      color: var(--glDuoChat-icon-foreground);
+    }
+
+    &:hover {
+      background-color: var(--glDuoChat-buttonSecondary-background-hover) !important;
+      color: var(--glDuoChat-buttonSecondary-foreground);
+
+      .gl-icon {
+        color: var(--glDuoChat-buttonSecondary-foreground);
+      }
+    }
+  }
+}
+
+.nav-bar-link {
+  border-radius: 0.25rem;
+  font-size: var(--editor-font-size);
+  &:hover {
+    background-color: var(--editor-buttonSecondary-background-hover) !important;
+
+    .gl-icon {
+      color: var(--editor-buttonSecondary-foreground) !important;
+    }
+  }
+}
+
+.workflow-container {
+  padding-top: var(--navbar-height);
+}
+
+.plan-panel-max-h {
+  max-height: 40vh;
+}
+
+.show-plan:hover {
+  color: var(--glDuoChat-textLink-foreground);
+}
+
+.selected-item {
+  background-color: var(--glDuoChat-alert-background);
+  color: var(--glDuoChat-alert-foreground);
+}
+
+.selected-item pre code {
+  background-color: var(--glDuoChat-alert-background);
+  color: var(--glDuoChat-alert-foreground);
+}
+
+.overflow-text {
+  @apply gl-break-words;
+  @apply gl-overflow-hidden;
+  word-break: break-word;
+}
+
+.checkpoint-list .gl-markdown {
+  font-size: inherit;
+}
+
+.hljs {
+  color: inherit;
+  background-color: inherit;
+}
+
+/* In the Duo UI library, the web browser's default scroll anchoring behavior
+* in **all** elements is disabled to ensure that they don't act as anchors, only
+* a hidden element at the end of the chat history stream:
+* https://gitlab.com/gitlab-org/duo-ui/-/blob/main/src/components/chat/duo_chat.scss#L121.
+*
+* Perhaps, this change is required in the web version of chat but in editors, this
+* behavior breaks tooltips. Even when the web view defaults to the default anchoring beavior,
+* users can scroll up and the web browser will stick at a scroll position or they can scroll
+* to the most recent message and the web browser will continue moving the scroll as incoming
+* messages arrive.
+*/
+.duo-chat-history * {
+  overflow-anchor: initial;
+}
+
+.duo-chat-message .duo-message-pre-block,
+.duo-message-pre-block {
+  // Make code block background solid inside read-only tool approval code blocks
+  background-color: var(--editor-background-alternative);
+}
+
+.duo-chat-message .markdown-code-block {
+  max-width: 95%;
+}
+
+.usage-quota-alert {
+  .gl-alert-actions {
+    flex-direction: row;
+  }
+
+  .gl-alert-action {
+    width: auto;
+  }
+}

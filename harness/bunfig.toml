@@ -1,0 +1,2 @@
+[install.scopes]
+"@gitlab-org" = { url = "https://gitlab.com/api/v4/packages/npm/" }

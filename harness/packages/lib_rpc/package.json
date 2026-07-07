@@ -1,0 +1,26 @@
+{
+  "name": "@gitlab-org/rpc",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Types and utilities for defining and managing RPC messages.",
+  "dependencies": {
+    "@gitlab-org/logging": "0.0.0",
+    "zod": "^4.4.1"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

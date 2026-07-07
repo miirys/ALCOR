@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["./src/**/*", "./src/**/*.tsx"],
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "composite": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true
+  }
+}

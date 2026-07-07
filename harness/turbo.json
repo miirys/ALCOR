@@ -1,0 +1,57 @@
+{
+  "$schema": "https://v2-9-5.turborepo.dev/schema.json",
+  "remoteCache": {
+    "teamSlug": "gitlab-lsp",
+    "signature": true
+  },
+  "futureFlags": {
+    "watchUsingTaskInputs": true
+  },
+  "globalDependencies": ["package.json"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "^build:plugin", "build:plugin"],
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only"
+    },
+    "build:plugin": {
+      "dependsOn": ["^build", "^build:plugin"],
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only"
+    },
+    "build:webview": {
+      "dependsOn": ["build:plugin", "^build", "^build:plugin"],
+      "outputs": ["../../out/webviews/**"],
+      "outputLogs": "new-only"
+    },
+    "bundle": {
+      "dependsOn": ["build", "^build:webview", "build:webview"],
+      "outputLogs": "new-only",
+      "env": ["NO_MINIFY", "SENTRY_TRACKING_ENABLED"],
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "//#tb:api-extract": {
+      "dependsOn": [
+        "@gitlab-org/legacy-browser#bundle",
+        "@gitlab-org/legacy-common#bundle",
+        "@gitlab-org/legacy-node#bundle",
+        "@gitlab-org/language-server-webview#build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "src/*/dist/**/*.d.ts",
+        "packages/*/dist/**/*.d.ts",
+        "api-extractor.json",
+        "tsconfig.shared.json"
+      ],
+      "outputs": ["out/gitlab-lsp.d.ts"],
+      "outputLogs": "new-only"
+    },
+    "//#tb:sync-assets-to-ide": {
+      "dependsOn": ["//#tb:api-extract"],
+      "cache": false,
+      "passThroughEnv": ["LS_EDITOR", "LS_EDITOR_PATH", "LS_SYNC_VIA_YALC"]
+    }
+  }
+}

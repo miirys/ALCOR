@@ -1,0 +1,13 @@
+---
+description: Tracks when a security scan is initiated in the IDE.
+action: scan_initiated
+product_group: editor_extensions
+milestone: '17.7'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/1154
+tiers:
+- premium
+- ultimate
+additional_properties:
+  label:
+    description: Indicates the source that triggered the security scan (e.g., command, UI action).

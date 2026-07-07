@@ -1,0 +1,9 @@
+{
+  "extends": "../../../tsconfig.shared.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["es2020", "WebWorker", "DOM"],
+    "esModuleInterop": true
+  },
+  "include": ["."]
+}

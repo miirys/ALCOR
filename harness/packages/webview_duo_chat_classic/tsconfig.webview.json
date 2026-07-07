@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "lib": ["DOM"],
+    "noEmit": true,
+    "allowJs": true
+  },
+  "include": ["src/metadata.ts", "src/**/*.ts", "src/**/*.js"]
+}

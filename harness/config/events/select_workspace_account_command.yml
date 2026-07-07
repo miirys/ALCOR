@@ -1,0 +1,10 @@
+---
+description: Tracks when user selects account for the VSCode workspace.
+action: select_workspace_account_command
+product_group: editor_extensions
+milestone: '17.9'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/2311
+tiers:
+- premium
+- ultimate

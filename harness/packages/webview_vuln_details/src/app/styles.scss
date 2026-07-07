@@ -1,0 +1,29 @@
+@tailwind utilities;
+
+h3,
+p {
+  color: var(--editor-foreground);
+}
+.page {
+  font-family: var(--editor-font-family);
+  font-size: var(--editor-font-size);
+  background-color: var(--editor-background);
+  color: var(--editor-foreground);
+}
+
+.divider {
+  height: var(--editor-font-size);
+  width: 1px;
+  background-color: var(--editor-foreground);
+}
+
+a {
+  color: var(--editor-textLink-foreground);
+}
+
+pre {
+  background-color: var(--editor-textCodeBlock-background);
+  border-radius: 3px;
+  overflow: auto;
+  padding: 0.5rem 0.75rem;
+}

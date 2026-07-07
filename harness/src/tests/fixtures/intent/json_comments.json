@@ -1,0 +1,21 @@
+// user with name, emails and comments
+
+{
+  "user": {
+    "id": "12345",
+    "name": "John Doe",
+    "email": "johndoe@example.com"
+  },
+  "comments": [
+    {
+      "id": "1",
+      "text": "Comment 1"
+    },
+    {
+      "id": "2",
+      "text": "Comment 2"
+    }
+  ]
+}
+// empty comment
+//

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./mocha.css" />
+    <script src="./mocha.js"></script>
+    <script>
+      const loadingTestErrors = [];
+      // Set environment variables from handlebars template
+      if (typeof process === 'undefined') {
+        window.process = { env: {} };
+      }
+      process.env.GITLAB_URL = '{{GITLAB_URL}}';
+      process.env.GITLAB_TEST_TOKEN = '{{GITLAB_TEST_TOKEN}}';
+      process.env.GITLAB_PROJECT_PATH = '{{GITLAB_PROJECT_PATH}}';
+
+      mocha.setup({
+        ui: 'bdd',
+        timeout: 10000,
+        retries: 2,
+        allowUncaught: false,
+        failZero: true,
+        forbidPending: true,
+        forbidOnly: true,
+      });
+
+      window.addEventListener('error', (event) => {
+        if (event.error) {
+          loadingTestErrors.push(event.error);
+        }
+      });
+    </script>
+    <script src="./suggestions_browser.test.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script>
+      describe('Test Suite Loading', function () {
+        it('should have no syntax errors in test files', () => {
+          if (loadingTestErrors.length) {
+            const errorDetails = loadingTestErrors.map((e) => `${e.message}`).join('\n');
+            throw new Error(`Script errors detected:\n${errorDetails}`);
+          }
+        });
+      });
+      mocha.run();
+    </script>
+  </body>
+</html>

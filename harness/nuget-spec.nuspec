@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>%PACKAGE_NAME%</id>
+    <version>%VERSION%</version>
+    <authors>GitLab</authors>
+    <description>Language Server for GitLab</description>
+    <contentFiles>
+      <files include="any/any/bin/*.exe" buildAction="None" copyToOutput="true" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="bin/*.exe" target="contentFiles/any/any/bin" />
+  </files>
+</package>

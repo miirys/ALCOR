@@ -1,0 +1,29 @@
+{
+  "$schema": "https://v2-9-5.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": []
+    },
+    "bundle": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:debug": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:binary": {
+      "dependsOn": ["^build"],
+      "outputs": ["bin/**"],
+      "inputs": ["$TURBO_DEFAULT$", "../../package.json", "../../rg-binaries/**"],
+      "env": ["PACKAGE_VERSION", "SKIP_RIPGREP_BUNDLE", "SUPPORTED_TARGETS"]
+    },
+    "build:dev-binary": {
+      "dependsOn": ["^build"],
+      "outputs": ["bin/**"],
+      "inputs": ["$TURBO_DEFAULT$", "../../package.json", "../../rg-binaries/**"],
+      "env": ["PACKAGE_VERSION", "SKIP_RIPGREP_BUNDLE"]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.shared.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../../out/scripts",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "skipLibCheck": true,
+    "lib": ["ES2023", "WebWorker", "DOM"]
+  },
+  "include": [".", "./**/*.json", "../src/**/*.ts", "../src/**/*.json"],
+  "exclude": ["../src/**/*.test.ts", "../src/tests/**/*"]
+}

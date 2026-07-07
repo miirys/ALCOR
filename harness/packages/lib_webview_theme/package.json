@@ -1,0 +1,29 @@
+{
+  "name": "@gitlab-org/webview-theme",
+  "version": "0.0.0",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@gitlab-org/disposable": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/message-bus": "0.0.0",
+    "@gitlab-org/webview-plugin": "0.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "tsdown"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

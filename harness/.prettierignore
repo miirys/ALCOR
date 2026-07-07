@@ -1,0 +1,7 @@
+src/tests/fixtures/**/*
+gl-code-quality-report.json
+# Bun owns this file's format. The Prettier CLI can't infer a parser for it, but
+# an editor's format-on-save integration treats it as JSONC and reformats it,
+# which bloats the lockfile ~4x. Prettier honors .prettierignore even when invoked
+# by an editor on a single file. Also enforced by the verify-bun-lock-format CI job.
+bun.lock

@@ -1,0 +1,27 @@
+{
+  "name": "@gitlab-org/legacy-browser",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly",
+    "bundle": "cd ../.. && tsx --tsconfig ./scripts/tsconfig.json ./scripts/esbuild/browser.ts"
+  },
+  "dependencies": {
+    "@gitlab-org/config": "0.0.0",
+    "@gitlab-org/core": "0.0.0",
+    "@gitlab-org/errors": "0.0.0",
+    "@gitlab-org/fetch": "0.0.0",
+    "@gitlab-org/legacy-common": "0.0.0",
+    "@gitlab-org/logging": "0.0.0",
+    "@gitlab-org/repositories": "0.0.0",
+    "@gitlab-org/test-utils": "0.0.0",
+    "@gitlab-org/webview": "0.0.0",
+    "@gitlab/needle": "2.0.0",
+    "cross-fetch": "^4.1.0",
+    "events": "^3.3.0",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "web-tree-sitter": "^0.24.7"
+  }
+}

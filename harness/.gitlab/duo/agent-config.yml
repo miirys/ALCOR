@@ -1,0 +1,24 @@
+# Tag is the content hash of docker/ci-node/Dockerfile + mise/config.toml
+image: registry.gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/ci-node:0c52cfefa3992c56
+
+setup_script:
+  - mise trust
+  - export BUN_INSTALL_CACHE_DIR="$CI_PROJECT_DIR/.bun-cache"
+  - bun install --frozen-lockfile
+  - |
+    mkdir -p ~/.local/state/asciinema ~/.config/asciinema
+    echo "e93c3f54-4d8f-4143-9a66-9612a4c3317d" > ~/.local/state/asciinema/install-id
+    cat > ~/.config/asciinema/defaults.toml << 'EOF'
+    [server]
+    url = "https://asciinema.duo-cli-testing.com/"
+    EOF
+
+cache:
+  key:
+    files:
+      - bun.lock
+  paths:
+    - .bun-cache/
+
+network_policy:
+  include_recommended_allowed: true

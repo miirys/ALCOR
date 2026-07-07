@@ -1,0 +1,1 @@
+export { documentationDiContributions } from './di';

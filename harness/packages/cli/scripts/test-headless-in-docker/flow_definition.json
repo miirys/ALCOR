@@ -1,0 +1,90 @@
+{
+  "version": "experimental",
+  "environment": "remote",
+  "components": [
+    {
+      "name": "step_01_list_dir",
+      "type": "DeterministicStepComponent",
+      "inputs": [{ "from": ".", "as": "directory", "literal": true }],
+      "tool_name": "list_dir"
+    },
+    {
+      "name": "step_02_grep",
+      "type": "DeterministicStepComponent",
+      "inputs": [
+        { "from": "llama,wizard", "as": "keywords", "literal": true },
+        { "from": ".", "as": "search_directory", "literal": true }
+      ],
+      "tool_name": "grep"
+    },
+    {
+      "name": "step_03_find_files",
+      "type": "DeterministicStepComponent",
+      "inputs": [{ "from": "*.md", "as": "name_pattern", "literal": true }],
+      "tool_name": "find_files"
+    },
+    {
+      "name": "step_04_mkdir",
+      "type": "DeterministicStepComponent",
+      "inputs": [{ "from": ".duo_workflow_test_temp", "as": "directory_path", "literal": true }],
+      "tool_name": "mkdir"
+    },
+    {
+      "name": "step_05_create_file",
+      "type": "DeterministicStepComponent",
+      "inputs": [
+        { "from": ".duo_workflow_test_temp/test_file.txt", "as": "file_path", "literal": true },
+        {
+          "from": "Hello from Duo Workflow!\nThis is a test file.\nLine 3 here.",
+          "as": "contents",
+          "literal": true
+        }
+      ],
+      "tool_name": "create_file_with_contents"
+    },
+    {
+      "name": "step_06_read_file",
+      "type": "DeterministicStepComponent",
+      "inputs": [
+        { "from": ".duo_workflow_test_temp/test_file.txt", "as": "file_path", "literal": true }
+      ],
+      "tool_name": "read_file"
+    },
+    {
+      "name": "step_07_edit_file",
+      "type": "DeterministicStepComponent",
+      "inputs": [
+        { "from": ".duo_workflow_test_temp/test_file.txt", "as": "file_path", "literal": true },
+        { "from": "Line 3 here.", "as": "old_str", "literal": true },
+        { "from": "Line 3 has been EDITED!", "as": "new_str", "literal": true }
+      ],
+      "tool_name": "edit_file"
+    },
+    {
+      "name": "step_08_read_file_after_edit",
+      "type": "DeterministicStepComponent",
+      "inputs": [
+        { "from": ".duo_workflow_test_temp/test_file.txt", "as": "file_path", "literal": true }
+      ],
+      "tool_name": "read_file"
+    },
+    {
+      "name": "step_09_run_command_cleanup",
+      "type": "DeterministicStepComponent",
+      "inputs": [{ "from": "rm -rf .duo_workflow_test_temp", "as": "command", "literal": true }],
+      "tool_name": "run_command"
+    }
+  ],
+  "routers": [
+    { "from": "step_01_list_dir", "to": "step_02_grep" },
+    { "from": "step_02_grep", "to": "step_03_find_files" },
+    { "from": "step_03_find_files", "to": "step_04_mkdir" },
+    { "from": "step_04_mkdir", "to": "step_05_create_file" },
+    { "from": "step_05_create_file", "to": "step_06_read_file" },
+    { "from": "step_06_read_file", "to": "step_07_edit_file" },
+    { "from": "step_07_edit_file", "to": "step_08_read_file_after_edit" },
+    { "from": "step_08_read_file_after_edit", "to": "step_09_run_command_cleanup" },
+    { "from": "step_09_run_command_cleanup", "to": "end" }
+  ],
+  "flow": { "entry_point": "step_01_list_dir" }
+}

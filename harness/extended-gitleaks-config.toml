@@ -1,0 +1,12 @@
+title = "extension of gitlab's default gitleaks config"
+
+[extend]
+# Extends default packaged path
+path = "/gitleaks.toml"
+
+[allowlist]
+  description = "allow list of test tokens to ignore in detection"
+  regexTarget = "match"
+  regexes = [
+    '''glpat-abcdefghijklmno12345''',
+  ]

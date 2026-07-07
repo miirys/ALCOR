@@ -1,0 +1,15 @@
+---
+description: Tracks when a user clicks "Give feedback" button in the Duo Chat interface.
+action: click_button
+product_group: editor_extensions
+milestone: '17.9'
+classification: duo
+introduced_by_url: https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/merge_requests/1315
+tiers:
+- premium
+- ultimate
+additional_properties:
+  didWhat:
+    description: Identifies what action the user performed with the button click.
+  improveWhat:
+    description: Indicates what aspect of the chat the user wants to improve.

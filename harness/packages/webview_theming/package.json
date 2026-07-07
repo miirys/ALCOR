@@ -1,0 +1,40 @@
+{
+  "name": "@gitlab-org/webview-theming",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@gitlab-org/webview-plugin": "0.0.0",
+    "@gitlab-org/webview-client": "0.0.0",
+    "@gitlab/ui": "^113.4.0"
+  },
+  "devDependencies": {
+    "@gitlab-org/vite-common-config": "0.0.0",
+    "@gitlab/svgs": "^3.122.0",
+    "dompurify": "^3.1.7",
+    "emoji-regex": "^10.0.0",
+    "pikaday": "^1.8.0",
+    "sass": "^1.77.8",
+    "tailwindcss": "^3.4.1",
+    "vite": "^3.0.2",
+    "vue": "^2.7.16"
+  },
+  "scripts": {
+    "build:plugin": "tsdown --tsconfig tsconfig.plugin.json",
+    "build:webview": "vite build",
+    "dev": "vite",
+    "build:watch": "vite --config vite.config.ts build --watch"
+  },
+  "exports": {
+    ".": {
+      "_ts-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}
