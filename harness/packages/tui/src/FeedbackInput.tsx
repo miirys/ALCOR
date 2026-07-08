@@ -71,7 +71,7 @@ const StepHeader: React.FC<StepHeaderProps> = ({ primary, secondary, children })
     <Box paddingX={1} marginBottom={1}>
       {primary && secondary ? (
         <>
-          <Text color="cyan" bold>
+          <Text color="#e8e8ee" bold>
             {primary}
           </Text>
           <Text color="dim"> — {secondary}</Text>

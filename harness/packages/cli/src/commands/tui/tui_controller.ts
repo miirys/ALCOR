@@ -300,10 +300,29 @@ export class TUIController implements Disposable {
 
       this.#lazySetupInitialState(username, credentials.source);
       doNotAwait(this.#registerSkillSlashCommands());
+
+      // ALCOR boot menu: on a fresh launch with prior local sessions, open the
+      // session picker so previous work is one keystroke away (Esc dismisses
+      // straight into the new session).
+      if (!existingSessionId) {
+        doNotAwait(this.#maybeOpenBootSessionMenu());
+      }
     } catch (error) {
       this.#errorHandler.handleError('ALCOR initialization failed', error);
       const message = error instanceof Error ? error.message : 'Unknown initialization error';
       await this.#showCriticalErrorAndExit(message);
+    }
+  }
+
+  async #maybeOpenBootSessionMenu(): Promise<void> {
+    try {
+      const page = await this.#sessionManager.getSessionHistory({ pageSize: 2 });
+      const activeId = this.#sessionManager.getActiveSession()?.sessionId;
+      const prior = page.items.filter((item) => item.id !== activeId);
+      if (prior.length === 0) return;
+      await this.#slashCommandService.execute('/sessions', this.#createControllerApi());
+    } catch (error) {
+      this.#logger.warn('Boot session menu unavailable', error);
     }
   }
 

@@ -164,7 +164,11 @@ import { DefaultPromptHistoryController } from './commands/tui/prompt_history_co
 import { DefaultSkillsCommandHandler } from './slash_commands/handlers/skills_command_handler';
 import { DefaultCompactCommandHandler } from './slash_commands/handlers/compact_command_handler';
 import { DefaultExitCommandHandler } from './slash_commands/handlers/exit_command_handler';
-import { DefaultSettingsCommandHandler } from './slash_commands/handlers/settings_command_handler';
+import {
+  DefaultSettingsCommandHandler,
+  DefaultThemeCommandHandler,
+  DefaultStatsCommandHandler,
+} from './slash_commands/handlers/settings_command_handler';
 import { DefaultDoctorCommandHandler } from './slash_commands/handlers/doctor_command_handler';
 import { DefaultDiagnosticsReporter } from './commands/doctor/diagnostics_reporter';
 import { DefaultDoctorController } from './commands/doctor/doctor_controller';
@@ -419,6 +423,8 @@ export async function initDi<TBackendOpts>(
   serviceCollection.addClass(DefaultDiagnosticsReporter, DefaultDoctorController);
 
   serviceCollection.addClass(DefaultSettingsCommandHandler);
+  serviceCollection.addClass(DefaultThemeCommandHandler);
+  serviceCollection.addClass(DefaultStatsCommandHandler);
 
   serviceCollection.addClass(ToolInputFormatterService);
   serviceCollection.addClass(BetaFeaturesCheckService);

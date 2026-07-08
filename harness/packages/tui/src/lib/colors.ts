@@ -31,22 +31,17 @@ const USER_MESSAGE_BG: Record<Theme, string> = {
 export const getUserMessageBg = (theme: Theme): string => USER_MESSAGE_BG[theme];
 
 // BUILD stays monochrome; PLAN is the only mode that colors the chrome.
-const AGENT_COLORS: Record<AgentMode, string> = {
-  build: colors.accent,
-  plan: colors.yellow,
+// Resolved at call time so live theme switches (lib/themes.ts mutates
+// `colors` in place) take effect without a reload.
+export const getAgentColor = (agent?: AgentMode): string => {
+  if (agent === 'build') return colors.accent;
+  if (agent === 'plan') return colors.yellow;
+  return colors.fg;
 };
-
-export const getAgentColor = (agent?: AgentMode): string =>
-  (agent && AGENT_COLORS[agent]) ?? colors.fg;
 
 // Input-bar border: only PLAN recolors it; BUILD keeps the neutral border.
-const AGENT_BORDER_COLORS: Record<AgentMode, string> = {
-  build: colors.borderActive,
-  plan: colors.yellow,
-};
-
 export const getAgentBorderColor = (agent?: AgentMode): string =>
-  (agent && AGENT_BORDER_COLORS[agent]) ?? colors.borderActive;
+  agent === 'plan' ? colors.yellow : colors.borderActive;
 
 const AGENT_PREFIXES: Record<AgentMode, string> = {
   build: '❯ ',

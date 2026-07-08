@@ -23,6 +23,7 @@ const createInputState = (overrides: Partial<SettingsInputState> = {}): Settings
     },
   ],
   selectedIndex: 0,
+  initialTab: 'Behavior',
   ...overrides,
 });
 

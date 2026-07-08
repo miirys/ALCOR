@@ -235,7 +235,8 @@ export type InputState =
   | McpPanelInputState
   | SkillsDialogInputState
   | AgentsDialogInputState
-  | McpApprovalInputState;
+  | McpApprovalInputState
+  | PoolPanelInputState;
 
 export interface KeyModifiers extends Key {
   home: boolean;
@@ -302,10 +303,45 @@ export interface SettingsSelectorItem extends SettingsItemBase {
 
 export type SettingsItem = SettingsToggleItem | SettingsSelectorItem;
 
+/** Live session facts the Stats tab renders; gathered when settings opens. */
+export interface SettingsStats {
+  turns: number;
+  toolCounts: { name: string; count: number }[];
+  tokensUsed?: number;
+  tokensMax?: number;
+  model?: string;
+  sessions?: number;
+}
+
 export interface SettingsInputState {
   inputType: typeof CLI_INPUT_TYPES.SETTINGS;
   items: SettingsItem[];
   selectedIndex: number;
+  /** Optional payload for the Stats tab (ALCOR settings). */
+  stats?: SettingsStats;
+  /** Optional MCP snapshot for the MCP tab (ALCOR settings). */
+  mcpServers?: McpPanelServerItem[];
+  /** Tab to open on (e.g. /theme → Appearance, /stats → Stats). */
+  initialTab?: 'Appearance' | 'Behavior' | 'Stats' | 'MCP' | 'Keys';
+}
+
+/** One credit group in the pool bridge status panel. */
+export interface PoolPanelGroup {
+  id: string;
+  active: boolean;
+  creditsUsed: number;
+  creditsCap: number;
+  ready: boolean;
+  exhausted: boolean;
+}
+
+export interface PoolPanelInputState {
+  inputType: typeof CLI_INPUT_TYPES.POOL_PANEL;
+  running: boolean;
+  logUrl?: string;
+  thresholdCredits?: number;
+  creditsCap?: number;
+  groups: PoolPanelGroup[];
 }
 
 export interface FeedbackInputState {

@@ -88,9 +88,9 @@ interface LogPreviewLayoutProps {
 
 const LogPreviewLayout: React.FC<LogPreviewLayoutProps> = ({ children }) => (
   <Box flexDirection="column">
-    <Box borderStyle="round" borderColor="cyan" paddingX={2} paddingY={1} flexDirection="column">
+    <Box borderStyle="round" borderColor="#4a4a56" paddingX={2} paddingY={1} flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold color="cyan">
+        <Text bold color="#e8e8ee">
           Recent ALCOR Logs
         </Text>
       </Box>

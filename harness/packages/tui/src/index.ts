@@ -76,6 +76,12 @@ export {
 } from './settings/SettingsInput';
 export { McpPanelInput, mcpPanelFooterHint, type McpPanelCallbacks } from './mcp/McpPanelInput';
 export {
+  PoolPanelInput,
+  poolPanelFooterHint,
+  type PoolPanelCallbacks,
+} from './pool/PoolPanelInput';
+export { themes, setTheme, getThemeId, type AlcorTheme } from './lib/themes';
+export {
   McpApprovalInput,
   mcpApprovalFooterHint,
   type McpApprovalCallbacks,

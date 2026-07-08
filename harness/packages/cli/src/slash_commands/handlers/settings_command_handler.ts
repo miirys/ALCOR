@@ -8,8 +8,10 @@ import {
   defaultInputState,
   SettingsInput,
   settingsFooterHint,
+  type AppState,
   type SettingsCallbacks,
   type SettingsItem,
+  type SettingsStats,
   type SettingsToggleItem,
   type SettingsSelectorItem,
 } from '@gitlab-org/tui';
@@ -17,6 +19,7 @@ import type { ControllerApi } from '../../commands/tui/controller_api';
 import {
   SlashCommandHandler,
   SlashCommandAction,
+  type SlashCommand,
   type CommandComponentEntry,
 } from '../slash_command_handler';
 
@@ -59,11 +62,11 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
 
   #logger: Logger;
 
-  command = {
+  command: SlashCommand = {
     name: '/settings',
-    description: 'Open settings',
+    description: 'Open settings · themes, behavior, stats, keys',
     action: SlashCommandAction.Settings,
-  } as const;
+  };
 
   constructor(
     configService: ConfigService,
@@ -77,7 +80,7 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
 
   async execute(api: ControllerApi): Promise<void> {
     await api.ensureInitialized();
-    this.#openSettings(api);
+    this.openSettings(api, 'Appearance');
   }
 
   getComponent(api: ControllerApi): CommandComponentEntry<SettingsCallbacks> {
@@ -93,7 +96,10 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
     };
   }
 
-  #openSettings(api: ControllerApi): void {
+  protected openSettings(
+    api: ControllerApi,
+    initialTab: 'Appearance' | 'Behavior' | 'Stats' | 'MCP' | 'Keys',
+  ): void {
     this.#logger.info('Opening settings');
 
     api.mutateState((state) => ({
@@ -102,6 +108,9 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
         inputType: CLI_INPUT_TYPES.SETTINGS,
         items: this.#buildSettingsItems(),
         selectedIndex: 0,
+        initialTab,
+        stats: buildSettingsStats(state),
+        mcpServers: state.mcpServers,
       },
     }));
   }
@@ -204,5 +213,57 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
     } catch (error) {
       this.#logger.error(`Failed to persist ${key} setting`, error);
     }
+  }
+}
+
+/** Live session facts for the settings Stats tab, computed from TUI state. */
+function buildSettingsStats(state: AppState): SettingsStats {
+  const counts = new Map<string, number>();
+  let turns = 0;
+  for (const el of state.elements) {
+    if (el.type === 'message' && el.role === 'user') turns += 1;
+    if (el.type === 'tool') {
+      const name = el.input.tool === 'generic' ? el.input.name : el.input.tool;
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+  }
+  return {
+    turns,
+    toolCounts: [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count),
+    tokensUsed: state.contextUsage?.totalTokens,
+    tokensMax: state.contextUsage?.maxTokens,
+    model: state.selectedModel,
+  };
+}
+
+/** `/theme` — the settings panel opened on the Appearance tab. */
+@Injectable(SlashCommandHandler, [ConfigService, UserPersistentStorage, Logger])
+export class DefaultThemeCommandHandler extends DefaultSettingsCommandHandler {
+  override command: SlashCommand = {
+    name: '/theme',
+    description: 'Switch the color theme',
+    action: 'theme',
+  };
+
+  override async execute(api: ControllerApi): Promise<void> {
+    await api.ensureInitialized();
+    this.openSettings(api, 'Appearance');
+  }
+}
+
+/** `/stats` — the settings panel opened on the Stats tab. */
+@Injectable(SlashCommandHandler, [ConfigService, UserPersistentStorage, Logger])
+export class DefaultStatsCommandHandler extends DefaultSettingsCommandHandler {
+  override command: SlashCommand = {
+    name: '/stats',
+    description: 'Session stats: turns, tokens, tool usage',
+    action: 'stats',
+  };
+
+  override async execute(api: ControllerApi): Promise<void> {
+    await api.ensureInitialized();
+    this.openSettings(api, 'Stats');
   }
 }

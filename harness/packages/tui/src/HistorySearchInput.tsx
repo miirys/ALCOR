@@ -106,7 +106,7 @@ function HistoryItemComponent({
       borderTop={false}
       borderBottom={false}
       borderStyle="bold"
-      borderColor={isSelected ? 'white' : 'blackBright'}
+      borderColor={isSelected ? '#8a8a94' : '#2a2a32'}
       paddingLeft={1}
     >
       <Text bold={isSelected}>{renderWithHighlight()}</Text>
