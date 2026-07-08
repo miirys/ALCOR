@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import { Markdown } from '../../lib/components/Markdown';
 import { DEFAULT_TERMINAL_WIDTH } from '../../constants';
 import { BaseTool, toolContentWidth } from './BaseTool';
 import { truncate, isTruncatable } from './truncate';
@@ -15,7 +14,10 @@ export const RunCommandTool: React.FC<Props> = ({
   columns = DEFAULT_TERMINAL_WIDTH,
 }) => {
   const label = `❯_ Shell`;
-  const commandDisplay = `$ \`${input.command}\``;
+  // The command itself can be huge (heredocs, multi-line scripts) — preview it
+  // truncated like the output so a single card can never flood the frame.
+  const displayCommand = expanded ? input.command : truncate(input.command);
+  const commandTruncatable = isTruncatable(input.command);
 
   const output = state.type === 'success' ? state.output.trim() : null;
   const showOutput = output && output.length > 0;
@@ -29,10 +31,13 @@ export const RunCommandTool: React.FC<Props> = ({
       state={state}
       expanded={expanded}
       columns={columns}
-      showExpandHint={outputTruncatable}
+      showExpandHint={outputTruncatable || commandTruncatable}
     >
-      <Box width={contentWidth}>
-        <Markdown markdown={commandDisplay} availableWidth={contentWidth} />
+      <Box flexDirection="column" width={contentWidth}>
+        <Text color="#9db4c0" wrap="truncate-end">
+          $ {displayCommand}
+        </Text>
+        {!expanded && commandTruncatable && <Text dimColor>… (Ctrl+O expands)</Text>}
       </Box>
       {showOutput && (
         <Box flexDirection="column" paddingLeft={2} width={contentWidth}>

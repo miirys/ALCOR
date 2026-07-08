@@ -3,6 +3,8 @@ import { setFlags } from './kitty-protocol';
 import { BRACKETED_PASTE_ON, BRACKETED_PASTE_OFF, kittyResetSequences } from './tty_state';
 import { createSuspendController, enterTerminalModes, withSuspendedTty } from './terminal_modes';
 
+const ALT_SCREEN_ON = '\x1b[?1049h\x1b[2J\x1b[H';
+const ALT_SCREEN_OFF = '\x1b[?1049l';
 const TITLE_PUSH = '\x1b[22;2t';
 const TITLE_SET = '\x1b]0;ALCOR\x07';
 const TITLE_POP = '\x1b[23;2t';
@@ -67,6 +69,7 @@ describe('terminal_modes', () => {
         enterTerminalModes({ isKittySupported: true });
 
         expect(writes).toEqual([
+          ALT_SCREEN_ON,
           TITLE_PUSH,
           TITLE_SET,
           BRACKETED_PASTE_ON,
@@ -92,6 +95,7 @@ describe('terminal_modes', () => {
           `write:${FOCUS_OFF}`,
           `write:${BRACKETED_PASTE_OFF}`,
           `write:${TITLE_POP}`,
+          `write:${ALT_SCREEN_OFF}`,
         ]);
       });
     });
@@ -153,7 +157,9 @@ describe('terminal_modes', () => {
           `write:${CURSOR_SHOW}`,
           `write:${FOCUS_OFF}`,
           `write:${BRACKETED_PASTE_OFF}`,
+          `write:${ALT_SCREEN_OFF}`,
           'fn',
+          `write:${ALT_SCREEN_ON}`,
           `write:${BRACKETED_PASTE_ON}`,
           `write:${FOCUS_ON}`,
           `write:${CURSOR_HIDE}`,
@@ -169,6 +175,8 @@ describe('terminal_modes', () => {
           CURSOR_SHOW,
           FOCUS_OFF,
           BRACKETED_PASTE_OFF,
+          ALT_SCREEN_OFF,
+          ALT_SCREEN_ON,
           BRACKETED_PASTE_ON,
           FOCUS_ON,
           CURSOR_HIDE,

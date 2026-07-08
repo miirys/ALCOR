@@ -46,6 +46,18 @@ interface TtyMode {
 const ttyModes = ({ isKittySupported }: TerminalModeOptions): TtyMode[] => {
   const modes: TtyMode[] = [
     {
+      // Alternate screen buffer: ALCOR renders a full-screen session, not a
+      // scroll log. First in the list so it is entered before anything draws
+      // and left last on teardown, restoring the user's scrollback intact.
+      apply: () => write('\x1b[?1049h\x1b[2J\x1b[H'),
+      revert: () => write('\x1b[?1049l'),
+      ttyOnly: true,
+      // Torn down for a child process / Ctrl+Z so the user gets their normal
+      // screen back, and re-entered on resume.
+      suspendable: true,
+      restoreAfterSuspend: true,
+    },
+    {
       // Save the current window title to the xterm title stack, then set ours.
       apply: () => {
         write('\x1b[22;2t');

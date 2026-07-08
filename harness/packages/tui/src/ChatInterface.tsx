@@ -20,7 +20,8 @@ import { McpStatusIndicator } from './lib/components/McpStatusIndicator';
 import { RetryStatusIndicator } from './lib/components/RetryStatusIndicator';
 import { UpdateBanner } from './lib/components/UpdateBanner';
 import { DeprecationBanner, useDeprecationStatus } from './lib/components/DeprecationBanner';
-import { TopBar, Hero, SessionSidebar } from './lib/components/AlcorChrome';
+import { TopBar, Hero, Splash, SessionSidebar } from './lib/components/AlcorChrome';
+import { useKeyHandler } from './lib/key_handler';
 import { ChatMessage } from './ChatMessage';
 import { ControlsHint } from './lib/components/ControlsHint';
 import { useCommandComponentRegistry } from './lib/command_component_registry';
@@ -46,11 +47,14 @@ export { getAgentColor };
 interface AgentModeIndicatorProps {
   availableAgents: AgentMode[];
   selectedAgent: AgentMode;
+  /** Hide the key hints (a busy indicator occupies their slot). */
+  compact?: boolean;
 }
 
 const AgentModeIndicator: React.FC<AgentModeIndicatorProps> = ({
   availableAgents,
   selectedAgent,
+  compact,
 }) => {
   if (availableAgents.length <= 1) return null;
 
@@ -60,8 +64,14 @@ const AgentModeIndicator: React.FC<AgentModeIndicatorProps> = ({
         {getAgentPrefix(selectedAgent)}
         {selectedAgent.toUpperCase()}
       </Text>
-      <Text> </Text>
-      <ControlsHint>{`**Tab** Mode · **/** Commands · **Ctrl+O** Expand`}</ControlsHint>
+      {/* While a stream is active the cancel hint takes this slot — showing
+          both wraps the footer on narrow terminals. */}
+      {!compact && (
+        <>
+          <Text> </Text>
+          <ControlsHint>{`**Tab** Mode · **/** Commands · **Ctrl+B** Sidebar · **Ctrl+O** Expand`}</ControlsHint>
+        </>
+      )}
     </Box>
   );
 };
@@ -120,7 +130,11 @@ const StatusBarLeft: React.FC<StatusBarLeftProps> = ({
 
   return (
     <>
-      <AgentModeIndicator availableAgents={availableAgents} selectedAgent={selectedAgent} />
+      <AgentModeIndicator
+        availableAgents={availableAgents}
+        selectedAgent={selectedAgent}
+        compact={isLoading || cancelState === 'stopped'}
+      />
       <AutoModeIndicator permissionMode={permissionMode} />
       {(isLoading || cancelState === 'stopped') && !hasQueuedPrompt && (
         <ControlsHint>{CANCEL_HINT[cancelState]}</ControlsHint>
@@ -176,9 +190,11 @@ const estimateRows = (el: ChatElement, width: number): number => {
   }
   if (el.type === 'error') return 4;
   if (el.type === 'info') return 3;
-  // Tool cards: label row + truncated body; diffs preview more lines.
+  // Tool cards: label row + truncated body; diffs and shell previews are taller.
   const t = el.input.tool;
-  const body = t === 'edit_file' || t === 'create_file_with_contents' ? 13 : 7;
+  let body = 7;
+  if (t === 'edit_file' || t === 'create_file_with_contents') body = 15;
+  else if (t === 'run_command' || t === 'shell_command') body = 14;
   return body + 1;
 };
 
@@ -210,8 +226,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const [, setInputEmpty] = React.useState(true);
+  const [sidebarVisible, setSidebarVisible] = React.useState(true);
   const commandRegistry = useCommandComponentRegistry();
   const envInfo = useContext(EnvironmentContext);
+
+  // Ctrl+B toggles the session sidebar, matching the ALCOR footer hint.
+  useKeyHandler((event) => {
+    if (event.eventType !== 'press') return;
+    if (event.ctrl && event.name === 'b') {
+      setSidebarVisible((v) => !v);
+      event.stopPropagation();
+    }
+  });
 
   // Publish app-level facts into the central keymap context so the dispatcher
   // can arbitrate the conflict-prone keys deterministically.
@@ -271,7 +297,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   // Frame budget: top bar (1) + blank (1) + input panel (3-4) + status (1) +
   // loading/queued (2) ≈ 9 rows of chrome; dialogs claim extra vertical space.
   const bodyBudget = Math.max(5, rows - 9 - (dialogOpen ? 12 : 0));
-  const showSidebar = !isEmpty && columns >= 130 && !dialogOpen;
+  const showSidebar = sidebarVisible && !isEmpty && columns >= 130 && !dialogOpen;
   const mainWidth = showSidebar ? columns - SIDEBAR_WIDTH - 1 : columns;
   const visible = sliceTail(state.elements, bodyBudget, mainWidth);
 
@@ -283,17 +309,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   );
 
   return (
-    <Box flexDirection="column" width={columns}>
+    <Box flexDirection="column" width={columns} height={rows}>
       {isEmpty ? (
-        <Hero
-          version={envInfo.duoCliVersion}
-          username={state.username}
-          credentialSource={state.credentialSource}
-          agenticChatAccess={state.agenticChatAccess}
-          gitlabRemoteInfo={state.gitlabRemoteInfo}
-          cwd={state.cwd}
-          initializing={initializing}
-        />
+        !state.username ? (
+          <Splash version={envInfo.duoCliVersion} model={state.selectedModel} />
+        ) : (
+          <Hero
+            version={envInfo.duoCliVersion}
+            username={state.username}
+            credentialSource={state.credentialSource}
+            agenticChatAccess={state.agenticChatAccess}
+            gitlabRemoteInfo={state.gitlabRemoteInfo}
+            cwd={state.cwd}
+            initializing={initializing}
+          />
+        )
       ) : (
         <TopBar
           cwd={state.cwd}
@@ -305,8 +335,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {deprecationBannerContent}
       {updateBannerContent}
 
-      <Box marginBottom={isChoiceInput ? 0 : 1} marginTop={isEmpty ? 0 : 1}>
-        <Box flexDirection="column" width={mainWidth} paddingX={1}>
+      <Box
+        marginBottom={isChoiceInput ? 0 : 1}
+        marginTop={isEmpty ? 0 : 1}
+        flexGrow={1}
+        overflow="hidden"
+      >
+        <Box flexDirection="column" width={mainWidth} paddingX={1} overflow="hidden">
           {visible.map((element) => (
             <ChatMessage
               key={element.id}

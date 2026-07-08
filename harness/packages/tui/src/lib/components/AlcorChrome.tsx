@@ -123,6 +123,57 @@ export const Hero: React.FC<{
   );
 };
 
+/** The full ANSI-shadow wordmark, used by the splash screen. */
+export const BigLogo: React.FC = () => {
+  const lines = [
+    ' █████╗ ██╗      ██████╗ ██████╗ ██████╗ ',
+    '██╔══██╗██║     ██╔════╝██╔═══██╗██╔══██╗',
+    '███████║██║     ██║     ██║   ██║██████╔╝',
+    '██╔══██║██║     ██║     ██║   ██║██╔══██╗',
+    '██║  ██║███████╗╚██████╗╚██████╔╝██║  ██║',
+    '╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝',
+  ];
+  const shades = [
+    colors.bright,
+    colors.accent,
+    colors.accent,
+    colors.fg,
+    colors.accentDim,
+    colors.dim,
+  ];
+  return (
+    <Box flexDirection="column">
+      {lines.map((l, i) => (
+        <Text key={l} color={shades[i]}>
+          {l}
+        </Text>
+      ))}
+    </Box>
+  );
+};
+
+/** Boot splash: centered wordmark, tagline, animated init line. */
+export const Splash: React.FC<{ version?: string; model?: string }> = ({ version, model }) => {
+  return (
+    <Box flexDirection="column" alignItems="center" flexGrow={1} justifyContent="center">
+      <BigLogo />
+      <Box marginTop={1}>
+        <Text>
+          <Text color={colors.accentDim}>✦ </Text>
+          <Text dimColor>
+            80 UMa{version ? ` · v${version}` : ''}
+            {model ? ` · ${model}` : ''}
+          </Text>
+        </Text>
+      </Box>
+      <Box marginTop={2}>
+        <Spinner changeColors spinner="line" />
+        <Text dimColor> Initializing · Connecting to GitLab…</Text>
+      </Box>
+    </Box>
+  );
+};
+
 interface ChangeRow {
   status: 'M' | 'A' | 'D';
   path: string;
@@ -162,6 +213,18 @@ export function collectChanges(elements: ChatElement[]): ChangeRow[] {
   return [...byPath.values()];
 }
 
+/** Group change rows by parent directory, preserving first-seen dir order. */
+function groupByDir(changes: ChangeRow[]): [string, ChangeRow[]][] {
+  const groups = new Map<string, ChangeRow[]>();
+  for (const c of changes) {
+    const dir = c.path.includes('/') ? c.path.slice(0, c.path.lastIndexOf('/')) : '';
+    const list = groups.get(dir) ?? [];
+    list.push(c);
+    groups.set(dir, list);
+  }
+  return [...groups.entries()];
+}
+
 const DiffStat: React.FC<{ add: number; del: number }> = ({ add, del }) => (
   <Text>
     <Text color={colors.green}>+{add}</Text> <Text color={colors.red}>−{del}</Text>
@@ -199,19 +262,29 @@ export const SessionSidebar: React.FC<{
       </Box>
       <Text color={colors.faint}>{rule}</Text>
       {changes.length === 0 && <Text dimColor>No changes yet</Text>}
-      {changes.slice(-maxFiles).map((c) => {
-        const sc = c.status === 'A' ? colors.green : c.status === 'D' ? colors.red : colors.yellow;
-        const name = c.path.split('/').pop() ?? c.path;
-        return (
-          <Box key={c.path} justifyContent="space-between">
-            <Text wrap="truncate">
-              <Text color={sc}>{c.status} </Text>
-              <Text color={colors.fg}>{name}</Text>
+      {groupByDir(changes.slice(-maxFiles)).map(([dir, files]) => (
+        <Box key={dir} flexDirection="column">
+          {dir !== '' && (
+            <Text dimColor wrap="truncate">
+              ▾ {dir}/
             </Text>
-            <DiffStat add={c.add} del={c.del} />
-          </Box>
-        );
-      })}
+          )}
+          {files.map((c) => {
+            const sc =
+              c.status === 'A' ? colors.green : c.status === 'D' ? colors.red : colors.yellow;
+            const name = c.path.split('/').pop() ?? c.path;
+            return (
+              <Box key={c.path} justifyContent="space-between" paddingLeft={dir === '' ? 0 : 2}>
+                <Text wrap="truncate">
+                  <Text color={sc}>{c.status} </Text>
+                  <Text color={colors.fg}>{name}</Text>
+                </Text>
+                <DiffStat add={c.add} del={c.del} />
+              </Box>
+            );
+          })}
+        </Box>
+      ))}
 
       {mcpServers && mcpServers.length > 0 && (
         <>
