@@ -37,7 +37,7 @@ describe('NotificationService', () => {
 
     expect(mockNotifier.notify).toHaveBeenCalledWith(
       { kind: 'osc9' },
-      expect.objectContaining({ title: 'GitLab Duo', body: 'Approval needed to continue' }),
+      expect.objectContaining({ title: 'ALCOR', body: 'Approval needed to continue' }),
     );
   });
 

@@ -80,6 +80,11 @@ export {
   poolPanelFooterHint,
   type PoolPanelCallbacks,
 } from './pool/PoolPanelInput';
+export {
+  ProviderWizardInput,
+  providerWizardFooterHint,
+  type ProviderWizardCallbacks,
+} from './providers/ProviderWizardInput';
 export { themes, setTheme, getThemeId, type AlcorTheme } from './lib/themes';
 export {
   McpApprovalInput,

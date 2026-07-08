@@ -1,11 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk';
 import {
   MessageParam,
   Tool,
   ToolUseBlock,
   TextBlockParam,
 } from '@anthropic-ai/sdk/resources/messages.mjs';
-import { MessageStream } from '@anthropic-ai/sdk/lib/MessageStream.mjs';
 import { AIContextItem } from '@gitlab-org/ai-context';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -15,6 +13,7 @@ import {
   McpToolSessionApprovalStore,
 } from '@gitlab-org/ai-configuration';
 import { Logger } from '@gitlab-org/logging';
+import type { AgentModelClient, MinimalMessageStream } from '../../providers/openai_compat_client';
 import { UserAction, UserActionType, ApprovalScope } from '../backend';
 import type { AgentModeConfig } from '../../agents/agents';
 import type { AnthropicModel } from './anthropic_parsed_options';
@@ -41,7 +40,7 @@ interface ExecutionState {
 export class Agent {
   #context: MessageParam[] = [];
 
-  #anthropicClient: Anthropic;
+  #anthropicClient: AgentModelClient;
 
   #tools: Tools;
 
@@ -77,7 +76,7 @@ export class Agent {
   #activeModeConfig?: AgentModeConfig;
 
   constructor(
-    anthropicClient: Anthropic,
+    anthropicClient: AgentModelClient,
     tools: Tools,
     model: AnthropicModel,
     logger: Logger,
@@ -224,15 +223,16 @@ export class Agent {
   }
 
   async *#streamTextChunks(
-    stream: MessageStream,
+    stream: MinimalMessageStream,
     messageId: string,
   ): AsyncGenerator<AnthropicAgentEvent, void, unknown> {
     for await (const chunk of stream) {
-      if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+      const delta = chunk.delta as { type?: string; text?: string } | undefined;
+      if (chunk.type === 'content_block_delta' && delta?.type === 'text_delta') {
         yield {
           id: messageId,
           type: 'text_chunk',
-          content: chunk.delta.text,
+          content: delta.text ?? '',
         };
       }
     }

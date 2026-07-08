@@ -15,6 +15,7 @@ export const CLI_INPUT_TYPES = {
   AGENTS_DIALOG: 'agents_dialog',
   MCP_APPROVAL: 'mcp_approval',
   POOL_PANEL: 'pool_panel',
+  PROVIDER_WIZARD: 'provider_wizard',
 } as const;
 
 export const CHAT_ELEMENT_TYPES = {

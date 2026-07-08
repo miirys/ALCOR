@@ -304,7 +304,7 @@ export class TUIController implements Disposable {
       // ALCOR boot menu: on a fresh launch with prior local sessions, open the
       // session picker so previous work is one keystroke away (Esc dismisses
       // straight into the new session).
-      if (!existingSessionId) {
+      if (!existingSessionId && process.stdin.isTTY && process.stdout.isTTY) {
         doNotAwait(this.#maybeOpenBootSessionMenu());
       }
     } catch (error) {

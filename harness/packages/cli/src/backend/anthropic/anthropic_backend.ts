@@ -6,6 +6,9 @@ import {
   McpToolApprovalController,
   McpToolSessionApprovalStore,
 } from '@gitlab-org/ai-configuration';
+import type { AgentModelClient } from '../../providers/openai_compat_client';
+import { createModelClient } from '../../providers/model_client';
+import { ProviderRegistry } from '../../providers/provider_registry';
 import {
   CliBackend,
   AgentEventType,
@@ -135,7 +138,9 @@ export class AnthropicSdkBackend implements CliBackend {
     }
 
     this.#modelChangedUnsubscribe = this.#modelManager.onModelChanged((model) => {
-      const normalized = this.#normalizeModel(model.modelRef);
+      const normalized = new ProviderRegistry().getActive()
+        ? (model.modelRef as AnthropicModel)
+        : this.#normalizeModel(model.modelRef);
       this.#logger.info(`Model changed to "${normalized}", updating agent`);
       this.#agent?.setModel(normalized);
     });
@@ -246,24 +251,42 @@ export class AnthropicSdkBackend implements CliBackend {
   }
 
   async #initializeAnthropicClient(model: AnthropicModel): Promise<void> {
+    // ALCOR providers: when a direct provider (Anthropic, OpenAI-compatible,
+    // Google, custom…) is logged in and active, talk to it. The GitLab AI
+    // proxy remains the fallback when no direct provider is configured.
+    const registry = new ProviderRegistry();
+    const active = registry.getActive();
+    const provider = active ? registry.getProvider(active.providerId) : undefined;
+    const credential = active ? registry.getCredential(active.providerId) : undefined;
+    const useDirectProvider = Boolean(provider && credential);
+
     const [directAccess, systemContext] = await Promise.all([
-      this.#fetchDirectAccessToken(),
+      useDirectProvider ? Promise.resolve(undefined) : this.#fetchDirectAccessToken(),
       this.#initializeSystemContext(),
     ]);
 
-    const anthropicClient = new Anthropic({
-      baseURL: 'https://cloud.gitlab.com/ai/v1/proxy/anthropic/',
-      defaultHeaders: directAccess.headers,
-      authToken: directAccess.token,
-    });
+    let anthropicClient: AgentModelClient;
+    if (provider && credential && active) {
+      this.#logger.info(`Using direct provider "${provider.id}" with model "${active.model}"`);
+      anthropicClient = await createModelClient(provider, credential, registry);
+    } else {
+      anthropicClient = new Anthropic({
+        baseURL: 'https://cloud.gitlab.com/ai/v1/proxy/anthropic/',
+        defaultHeaders: directAccess!.headers,
+        authToken: directAccess!.token,
+      });
+    }
 
     // Headless workflow execution and dangerously-skip-permissions mode should not allow tool approval prompts
     const allowAgentToRequestUser =
       this.#cliInput.command.name !== 'run' && !this.#cliInput.dangerouslySkipPermissions;
 
     // Normalize model name: GitLab model identifiers use underscores (e.g. claude_sonnet_4_6)
-    // but the Anthropic API expects hyphens (e.g. claude-sonnet-4-6)
-    const normalizedModel = this.#normalizeModel(model);
+    // but the Anthropic API expects hyphens (e.g. claude-sonnet-4-6). Direct
+    // provider model ids are passed through untouched.
+    const normalizedModel = useDirectProvider
+      ? ((active?.model ?? model) as AnthropicModel)
+      : this.#normalizeModel(model);
 
     this.#agent = new Agent(
       anthropicClient,

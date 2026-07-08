@@ -174,6 +174,12 @@ import { DefaultDiagnosticsReporter } from './commands/doctor/diagnostics_report
 import { DefaultDoctorController } from './commands/doctor/doctor_controller';
 import { DefaultMcpCommandHandler } from './slash_commands/handlers/mcp_command_handler';
 import { DefaultPoolCommandHandler } from './slash_commands/handlers/pool_command_handler';
+import {
+  DefaultLoginCommandHandler,
+  DefaultLogoutCommandHandler,
+  DefaultProvidersCommandHandler,
+  DefaultCustomProviderCommandHandler,
+} from './slash_commands/handlers/provider_command_handler';
 
 export type CliDiConfig = {
   logDestination: 'stderr' | 'file';
@@ -425,6 +431,10 @@ export async function initDi<TBackendOpts>(
   serviceCollection.addClass(DefaultSettingsCommandHandler);
   serviceCollection.addClass(DefaultThemeCommandHandler);
   serviceCollection.addClass(DefaultStatsCommandHandler);
+  serviceCollection.addClass(DefaultLoginCommandHandler);
+  serviceCollection.addClass(DefaultLogoutCommandHandler);
+  serviceCollection.addClass(DefaultProvidersCommandHandler);
+  serviceCollection.addClass(DefaultCustomProviderCommandHandler);
 
   serviceCollection.addClass(ToolInputFormatterService);
   serviceCollection.addClass(BetaFeaturesCheckService);

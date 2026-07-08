@@ -11,6 +11,8 @@ import {
   anthropicOptionDefs,
 } from '../backend_option_defs';
 import { GitLabBackendConfigAdapter } from '../backend/gitlab/gitlab_backend_config_adapter';
+import { AnthropicBackendConfigAdapter } from '../backend/anthropic/anthropic_backend_config_adapter';
+import { hasActiveDirectProvider } from '../providers/provider_registry';
 import type { ExitHandler } from '../utils/exit';
 import type { DuoCommand, OptionGroup } from './duo_command';
 import { TuiCommand, gitlabTuiExamples, gitlabTuiSynopsis } from './tui/tui_command';
@@ -64,7 +66,13 @@ export class RootCommand implements DuoCommand {
   constructor(options: RootCommandOptions) {
     const { version, exitHandler, program } = options;
     this.#version = version;
-    const gitlabAdapter = new GitLabBackendConfigAdapter();
+    // ALCOR is provider-first: when a direct provider (Anthropic, OpenAI,
+    // Google, custom…) is logged in and active, the root command runs the
+    // direct backend. GitLab Duo remains the fallback — and is always
+    // reachable explicitly via the `gitlab` subcommand group.
+    const gitlabAdapter = hasActiveDirectProvider()
+      ? new AnthropicBackendConfigAdapter()
+      : new GitLabBackendConfigAdapter();
     const gitlabSharedOptionDefsArray = Object.values(gitlabSharedOptionDefs);
 
     this.children = [

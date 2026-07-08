@@ -110,13 +110,21 @@ across every theme; only the identity accent changes.
 
 ## The real harness — `harness/`
 
-`harness/` is the full CLI (GitLab Duo CLI fork) with the ALCOR design
-integrated into its live TUI: the monochrome palette, the wordmark, the
-`❯ BUILD / ▤ PLAN / ≫ AUTO` mode chrome, the `❯` prompt, the star-pulse
-thinking shimmer, the `CTX nn%` meter, and the full ALCOR rebrand across
-help, diagnostics, notifications, and the config screen. Backend logic and
-GitLab endpoints are untouched; the reskin lives almost entirely in
-`harness/packages/tui`. All 1089 TUI tests pass.
+`harness/` is the full ALCOR harness: the ALCOR UI end-to-end (wordmark,
+`❯ BUILD / ▤ PLAN / ≫ AUTO` chrome, `CTX ▰▰▰▱` meter, session sidebar,
+splash, boot session menu, 7 themes, full settings), running a local agent
+loop that is **provider-first**:
+
+- `/login` — Anthropic (API key **or Claude Pro/Max browser OAuth**),
+  OpenAI, Google Gemini, Groq, OpenRouter, xAI, DeepSeek, Mistral
+- `/setup-custom-provider` — any OpenAI- or Anthropic-compatible endpoint
+- `/providers` · `/logout` — switch or remove; model discovery picks the
+  default model at login
+- GitLab Duo remains the optional fallback provider (and the workflow
+  backend for GitLab-specific flows)
+
+Credentials live in `~/.alcor/auth.json` (0600); sessions and usage stay
+local. All TUI + CLI tests pass.
 
     cd harness
     bun install

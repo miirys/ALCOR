@@ -220,7 +220,7 @@ export class DefaultSettingsCommandHandler implements SlashCommandHandler<Settin
 function buildSettingsStats(state: AppState): SettingsStats {
   const counts = new Map<string, number>();
   let turns = 0;
-  for (const el of state.elements) {
+  for (const el of state.elements ?? []) {
     if (el.type === 'message' && el.role === 'user') turns += 1;
     if (el.type === 'tool') {
       const name = el.input.tool === 'generic' ? el.input.name : el.input.tool;

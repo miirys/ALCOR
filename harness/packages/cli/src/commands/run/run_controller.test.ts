@@ -186,7 +186,7 @@ describe('RunController', () => {
 
       it('should handle the error', () => {
         expect(mockErrorHandler.handleError).toHaveBeenCalledWith(
-          'GitLab Duo CLI initialization failed',
+          'ALCOR initialization failed',
           initError,
         );
       });

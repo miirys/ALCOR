@@ -236,7 +236,8 @@ export type InputState =
   | SkillsDialogInputState
   | AgentsDialogInputState
   | McpApprovalInputState
-  | PoolPanelInputState;
+  | PoolPanelInputState
+  | ProviderWizardInputState;
 
 export interface KeyModifiers extends Key {
   home: boolean;
@@ -333,6 +334,47 @@ export interface PoolPanelGroup {
   creditsCap: number;
   ready: boolean;
   exhausted: boolean;
+}
+
+export type ProviderWizardMode = 'login' | 'logout' | 'providers' | 'custom';
+export type ProviderWizardStep =
+  | 'provider'
+  | 'method'
+  | 'api_key'
+  | 'oauth_wait'
+  | 'model'
+  | 'custom_form'
+  | 'busy'
+  | 'done';
+
+export interface ProviderWizardProvider {
+  id: string;
+  name: string;
+  kind: 'anthropic' | 'openai';
+  baseUrl: string;
+  authenticated: boolean;
+  active: boolean;
+  oauth?: boolean;
+  custom?: boolean;
+}
+
+export interface ProviderWizardInputState {
+  inputType: typeof CLI_INPUT_TYPES.PROVIDER_WIZARD;
+  mode: ProviderWizardMode;
+  step: ProviderWizardStep;
+  providers: ProviderWizardProvider[];
+  /** Provider being acted on (set after the provider step). */
+  providerId?: string;
+  /** Model ids for the model step. */
+  models?: string[];
+  /** Authorize URL shown during the OAuth wait step. */
+  oauthUrl?: string;
+  /** Which custom-provider field is being collected. */
+  customField?: 'id' | 'baseUrl' | 'kind' | 'apiKey';
+  /** Status or error line. */
+  message?: string;
+  /** True when `message` is an error. */
+  isError?: boolean;
 }
 
 export interface PoolPanelInputState {

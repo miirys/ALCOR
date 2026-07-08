@@ -7,6 +7,7 @@ import {
 import { AvailableModelsResult, ModelManager, SelectedModel } from '../../model_manager';
 import { BaseModelManager } from '../../base_model_manager';
 import { SupportedAnthropicModel } from '../../backend_option_defs';
+import { ProviderRegistry } from '../../providers/provider_registry';
 import { AnthropicParsedOptions } from './anthropic_parsed_options';
 
 const ANTHROPIC_NAME_BY_REF: Record<SupportedAnthropicModel, string> = {
@@ -41,6 +42,12 @@ export class AnthropicModelManager extends BaseModelManager {
   }
 
   getFallbackModel(): SelectedModel {
+    // A logged-in direct provider's active model wins over the GitLab-proxy
+    // default, so a fresh session lands on what the user picked at /login.
+    const active = new ProviderRegistry().getActive();
+    if (active) {
+      return { modelRef: active.model, modelName: active.model };
+    }
     return {
       modelRef: SupportedAnthropicModel.ClaudeSonnet45,
       modelName: ANTHROPIC_NAME_BY_REF[SupportedAnthropicModel.ClaudeSonnet45],
@@ -48,6 +55,17 @@ export class AnthropicModelManager extends BaseModelManager {
   }
 
   getAvailableModels(): Promise<AvailableModelsResult> {
+    const registry = new ProviderRegistry();
+    const active = registry.getActive();
+    if (active) {
+      const provider = registry.getProvider(active.providerId);
+      const models = provider?.models ?? [];
+      const list = (models.length > 0 ? models : [active.model]).map((ref) => ({
+        ref,
+        name: ref,
+      }));
+      return Promise.resolve({ models: list });
+    }
     return Promise.resolve({ models: ANTHROPIC_MODELS });
   }
 }

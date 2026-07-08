@@ -205,7 +205,7 @@ describe('GitLabBackend - Access Error Routing', () => {
       const result = await backend.initialize();
       expect(result.sessionId).toBe('');
       expect(result.sessionRejectionReason).toContain(
-        'GitLab Duo CLI has not been enabled by your administrator',
+        'ALCOR has not been enabled by your administrator',
       );
       expect(result.sessionRejectionReason).toContain('Admin area > GitLab Duo > Configuration');
     });
@@ -217,7 +217,7 @@ describe('GitLabBackend - Access Error Routing', () => {
       const backend = createBackend(createRunCommand());
 
       await expect(backend.initialize()).rejects.toThrow(
-        'Failed to initialize workflow: GitLab Duo CLI has not been enabled by your administrator',
+        'Failed to initialize workflow: ALCOR has not been enabled by your administrator',
       );
     });
   });
